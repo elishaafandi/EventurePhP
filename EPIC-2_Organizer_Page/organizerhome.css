@@ -1,0 +1,334 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Body and Main Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+/* Header Styling */
+header {
+    background-color: #800c12;
+    color: #f5f4e6;
+    padding: 40px 40px; /* Adjust as needed */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+/* Adjusted header height for sidebar positioning */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-right {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-right a {
+    margin-left: 10px;
+    text-decoration: none;
+    font-family: Arial;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 400;
+    transition: 0.3s ease-in-out;
+}
+
+.participant-site {
+    background-color: #f5f4e6;
+    color: #cb0000;
+    border: 1px solid #000;
+}
+
+.organizer-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+    border: 1px solid #000;
+}
+
+.participant-site:hover,
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #f5f4e6;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background-color: #9b252b;
+    color: #f5f4e6;
+    padding-top: 80px; /* Adjusted for fixed header offset */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 5;
+}
+
+/* Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+
+/* Sidebar Menu Items */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%; /* Full width for easier alignment */
+}
+
+.sidebar ul li {
+    width: 100%;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #f5f4e6;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: #ff4d11;
+}
+
+/* Additional spacing for sections if needed */
+.sidebar ul + ul {
+    margin-top: 60px;
+}
+
+/* Logo and Text Container */
+.logo-container {
+    display: flex;
+    align-items: center; /* Center items vertically */
+    padding: 20px; /* Space from top */
+}
+
+/* Logo Image */
+.logo-container img {
+    width: 50px; /* Adjust logo size */
+    height: auto;
+    margin-right: 10px; /* Space between logo and text */
+}
+
+/* Logo Text */
+.sidebar .logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial;
+    text-decoration: none;
+}
+
+
+
+/* Main Content Styling */
+.main-content {
+    margin-left: 220px; /* Keep this for sidebar width */
+    margin-top: 10px; /* Adjust to match the height of the header */
+    padding: 20px;
+    width: calc(100% - 220px);
+}
+
+/* Create Event Section */
+.create-event-section {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-event-section h2 {
+    color: #800c12;
+}
+
+.create-event-section p {
+    margin-top: 10px;
+    color: #555;
+}
+
+.create-event-button {
+    margin-top: 15px;
+    background-color: #a62b2b;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.create-event-button:hover {
+    background-color: #e08500;
+}
+
+/* Event Status Table */
+.event-status {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.event-status h3 {
+    color: #333;
+}
+
+.event-status table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.event-status th,
+.event-status td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.event-status th {
+    background-color: #f2f2f2;
+}
+
+.view-button {
+    background-color: #a62b2b;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.view-button:hover {
+    background-color: #e08500;
+}
+
+/* Pill Button Styling */
+.pill {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #a62b2b; /* Dark red background */
+    color: #fff;
+    border-radius: 20px; /* Rounded edges for pill shape */
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    margin-top: 20px;
+}
+
+.pill:hover {
+    background-color: #e08500; /* Slightly lighter color on hover */
+    color: #fff; /* Ensure text remains white on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
+}
+
+.message h2 {
+    margin-bottom: 10px;
+    font-size: 24px;
+    color: #333;
+}
+
+.header-center {
+    display: flex;
+    justify-content: flex-end; /* Align to the right */
+    align-items: center;
+    width: 100%; /* Take full width */
+    margin-right: 250px;
+}
+
+/* Welcome message styling */
+.header-center h2 {
+    margin-right: 500px;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* Club dropdown styling */
+.club-role-dropdown {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #f5f4e6;
+    color: #800c12;
+    border: 1px solid #800c12;
+    margin-right: 20px;
+}
+
+/* Add Club button styling */
+.add-club-button {
+    padding: 8px 16px;
+    background-color: #da6124;
+    color: #f5f4e6;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+}
+
+.add-club-button:hover {
+    background-color: #f5f4e6;
+    color: #800c12;
+    border: 1px solid #800c12;
+}
+
+.message {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
+    text-align: left;
+    margin-left: 10px;
+}
+
+
+
+
+
