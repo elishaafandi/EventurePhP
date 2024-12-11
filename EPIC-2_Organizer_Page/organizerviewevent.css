@@ -1,0 +1,100 @@
+/* Main Content Styling */
+.main-content {
+    margin-left: 220px; /* Keep this for sidebar width */
+    margin-top: 20px; /* Adjust to match the height of the header */
+    padding: 30px;
+    width: calc(100% - 220px);
+    background-color: #ffffff;
+    border-radius: 10px; /* Rounded corners for softer appearance */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-family: 'Arial', sans-serif; /* Consistent font for the page */
+}
+
+/* Event Details Styling */
+.event-details {
+    margin-bottom: 30px;
+    padding: 25px;
+    background-color: #f8f8f8; /* Lighter background for readability */
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+}
+
+.event-details p {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 15px;
+    line-height: 1.6; /* More spacious text */
+}
+
+.event-details strong {
+    color: #800c12; /* Red accent for labels */
+    font-size: 18px; /* Slightly larger label font */
+}
+/* Event Image Styling */
+.event-photo {
+    max-width: 30%; /* Adjust the width to make it smaller */
+    height: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for images */
+    transition: transform 0.3s ease;
+    display: block; /* Ensures image doesn't overflow */
+   
+    margin-bottom:20px;
+}
+
+.event-photo:hover {
+    transform: scale(1.02); /* Slight zoom effect on hover */
+}
+
+
+/* Action Buttons (Edit and Delete) */
+.event-actions {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event-actions a {
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 30px; /* Larger border radius for rounder buttons */
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.3s ease, box-shadow 0.3s ease;
+    text-transform: uppercase; /* Capitalize text */
+}
+
+.edit-btn {
+    background-color: #a62b2b;
+}
+
+.delete-btn {
+    background-color: #cb0000;
+}
+
+.event-actions a:hover {
+    transform: scale(1.05); /* Slight hover effect for buttons */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15); /* Subtle shadow on hover */
+}
+
+.event-actions a:active {
+    transform: scale(1); /* Reset scale on click */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow when clicked */
+}
+
+.event-actions a:hover {
+    background-color: #e08500;
+}
+
+/* Link Styling */
+a {
+    color: #800c12;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
