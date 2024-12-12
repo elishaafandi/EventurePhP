@@ -1,0 +1,227 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #800c12;
+    color: #f5f4e6;
+    padding: 25px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial;
+    text-decoration: none;
+}
+
+header .logo:hover {
+    color:#ff9b00;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-left a {
+    color: #fff;
+    margin-left: 20px;
+    text-decoration: none;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.nav-left a {
+    color: #f5f4e6;
+    margin-left: 20px;
+    text-decoration: none;
+    font-family: Arial;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-left a:hover{
+    color: #f3d64c;
+    text-decoration: underline;
+}
+
+.nav-left a.active {
+    color: #f3d64c; 
+    text-decoration: underline; 
+}
+
+.participant-site, .organizer-site {
+    padding: 8px 16px;
+    border-radius: 20px;  
+    border: 1px solid #000;
+    font-weight:400;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.participant-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.organizer-site {
+    background-color: #f5f4e6;
+    color:#000;
+}
+
+.participant-site:hover {
+    background-color: #e08500;
+}
+
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 24px;
+    margin-left: 10px;
+}
+
+.main-content {
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.event-status {
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.event-dashboard {
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.event-status h3 {
+    color: #333;
+}
+
+.event-status table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.event-status th,
+.event-status td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.event-status th {
+    background-color: #f2f2f2;
+}
+
+.status.applied { color: green; }
+.status.pending { color: orange; }
+.status.interview { color: #008CBA; }
+.status.accepted { color: green; }
+.status.rejected { color: red; }
+
+/* Button styling */
+.btn {
+    padding: 5px 10px;
+    margin-right: 10px;
+    text-decoration: none;
+    color: white;
+    border-radius: 5px;
+}
+
+.btn.view { background-color: #4CAF50; }
+.btn.edit { background-color: #FFA500; }
+.btn.delete { background-color: #f44336; }
+.btn.rate { background-color: #008CBA; }
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+/* Disabled Button Styling */
+.btn.disabled {
+    background-color: #ccc;  /* Gray color */
+    color: #666;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Profile Menu Styling */
+.profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.profile-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-left: 10px;
+    cursor: pointer;
+    object-fit: cover; /* Ensure proper image fit */
+}
+
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    z-index: 1000;
+    padding: 10px 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-menu .sign-out {
+    color: #d9534f;
+}
+
+.dropdown-menu hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #eee;
+}
+
+/* Show the dropdown only when the menu is open */
+.profile-menu.open .dropdown-menu {
+    display: block;
+}

@@ -1,0 +1,249 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #891a1a;
+    color: #f5f4e6;
+    padding: 50px 40px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+header h2 {
+    color: #f5f4e6;
+    margin-left: 190px;
+    padding-left: 30px;
+    margin-bottom: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-right {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-right a {
+    margin-left: 10px;
+    text-decoration: none;
+    font-family: Arial;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 400;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-right a:hover{
+    color: #f3d64c;
+    text-decoration: underline;
+}
+
+.nav-right a.active {
+    color: #f3d64c; 
+    text-decoration: underline; 
+}
+
+.participant-site {
+    background-color: #f5f4e6;
+    color: #cb0000;
+    border: 1px solid #000;
+}
+
+.organizer-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+    border: 1px solid #000;
+}
+
+.participant-site:hover,
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #f5f4e6;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background-color: #9b252b;
+    color: #f5f4e6;
+    padding-top: 80px; /* Adjusted for fixed header offset */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 5;
+}
+
+/* Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+/* Sidebar Menu Items */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%; /* Full width for easier alignment */
+}
+
+.sidebar ul li {
+    width: 100%;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #f5f4e6;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: #ff4d11;
+}
+
+/* Additional spacing for sections if needed */
+.sidebar ul + ul {
+    margin-top: 60px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.participant-site-btn, .organizer-site-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.main-content {
+    margin: 20px auto; /* Center the content horizontally and add vertical margin */
+    padding: 20px;
+    background-color: #fff; /* Clean white background */
+    border-radius: 12px; /* Softer corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
+    font-size: 16px; /* Readable font size */
+    color: #333; /* Darker text for contrast */
+    display: flex;
+    flex-direction: column; /* Items are stacked vertically */
+    gap: 20px; /* Space between sections */
+    align-items: center; /* Center align sections horizontally */
+    width: 100%; /* Ensure it scales with the container */
+    max-width: 800px; /* Limit the width to match the details box size */
+    box-sizing: border-box; /* Include padding in width/height calculations */
+}
+
+
+/* Styling for individual content sections inside main-content */
+.details-box {
+    width: 100%; /* Full width */
+    max-width: 800px; /* Limit width for better readability */
+    background-color: #e9e9e9; /* Neutral light gray background */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Padding for internal spacing */
+    text-align: left; /* Align content to the left */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for definition */
+}
+
+/* Header for each section */
+.details-box h3 {
+    font-size: 20px;
+    color: #a50d0d; /* Theme red color */
+    margin-bottom: 10px;
+    border-bottom: 2px solid #a50d0d; /* Red underline */
+    padding-bottom: 5px;
+}
+
+/* Text styling for content */
+.details-box p {
+    font-size: 15px;
+    margin: 5px 0;
+    color: #333; /* Standard text color */
+}
+
+.profile-photo {
+    width: 150px;           /* Set the width */
+    height: 150px;          /* Set the height */
+    object-fit: cover;      /* Ensure the image fits nicely */
+    border-radius: 10px;    /* Add rounded corners */
+    border: 3px solid #000000; /* Add a border with a color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    display: block;         /* Ensure proper alignment */
+    margin: 20px;    /* Center the image and add space below */
+}
+
+
+
+/* Back button styling */
+.back-button {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #fff;
+    background-color: #a50d0d; /* Theme red */
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 20px;
+}
+
+.back-button:hover {
+    background-color: #850b0b; /* Darker red on hover */
+    transform: scale(1.05);
+}

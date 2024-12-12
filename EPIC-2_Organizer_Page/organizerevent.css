@@ -1,0 +1,475 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    margin: 0;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background-color: #9b252b;
+    color: #f5f4e6;
+    padding-top: 80px; /* Adjusted for fixed header offset */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 5;
+}
+
+/* Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+/* Sidebar Menu Items */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%; /* Full width for easier alignment */
+}
+
+.sidebar ul li {
+    width: 100%;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #f5f4e6;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: #ff4d11;
+}
+
+/* Additional spacing for sections if needed */
+.sidebar ul + ul {
+    margin-top: 60px;
+}
+
+/* Logo and Text Container */
+.logo-container {
+    display: flex;
+    align-items: center; /* Center items vertically */
+    padding: 20px; /* Space from top */
+}
+
+/* Logo Image */
+.logo-container img {
+    width: 50px; /* Adjust logo size */
+    height: auto;
+    margin-right: 10px; /* Space between logo and text */
+}
+
+/* Logo Text */
+.sidebar .logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial;
+    text-decoration: none;
+}
+
+.main-content {
+    flex-grow: 1;
+    margin-left: 220px;
+    padding: 20px;
+}
+
+/* Top Bar Styling */
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between elements */
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between input and button */
+    width: 300px; /* Set a fixed width for the search bar */
+    max-width: 100%; /* Ensure it doesn't overflow the container */
+}
+
+.search-bar input {
+    padding: 10px;
+    width: 100%; /* Takes up the available space within the 300px limit */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.search-bar button {
+    padding: 10px;
+    background-color: #bf2e4b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-bar button i {
+    font-size: 16px;
+}
+
+
+.status-tabs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #bf2e4b;
+    font-weight: bold;
+}
+
+.status-tabs span {
+    cursor: pointer;
+}
+
+.create-event {
+    padding: 10px 20px;
+    color: white;
+    background-color: #bf2e4b;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    margin-bottom: 4px;
+}
+
+.participant-site {
+    background-color: #f5f4e6;
+    color: #cb0000;
+    border: 1px solid #000;
+    position: absolute;
+    right: 220px;
+    text-decoration: none;
+    font-family: Arial;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 400;
+    transition: 0.3s ease-in-out;
+}
+
+.organizer-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+    border: 1px solid #000;
+    position: absolute;
+    right: 60px;
+    margin-left: 10px;
+    text-decoration: none;
+    font-family: Arial;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 400;
+    transition: 0.3s ease-in-out;
+}
+
+.participant-site:hover,
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #f5f4e6;
+}
+
+.search-bar {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.search-bar input {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px 0 0 5px;
+}
+
+.status-tabs span {
+    cursor: pointer;
+    padding: 10px 15px;
+    margin-right: 5px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    transition: background-color 0.1s;
+}
+
+.status-tabs span.active {
+    background-color: #9b252b;
+    color: white;
+}
+
+
+.create-event-button {
+    display: inline-block;
+    font-size: 14px;
+    background-color: #da6124;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.create-event-button:hover {
+    background-color: #ec7119;
+}
+
+/* Overall layout adjustments */
+.main-content {
+    padding: 20px;
+    background-color: #f5f4e6;
+}
+
+/* Event container styles */
+.event-container {
+    display: block;
+    
+}
+
+/* Individual event row layout */
+.event-row {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Style for event card */
+.event-card {
+    flex: 4;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: #9b252b;
+    position: relative;
+}
+
+/* Style for event image */
+.event-image {
+    width: 300px;  /* Adjust width as needed */
+    height: 300px; /* Adjust height as needed */
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+
+/* Style for event info to position beside the image */
+.event-info {
+    flex: 1;
+}
+
+.event-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 20px; /* Space between cards */
+    min-height: 400px; /* Ensures a consistent height for the parent */
+}
+
+.no-events-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: gray;
+    margin: 20px 0;
+    display: none; /* Initially hidden; will be controlled via JavaScript */
+}
+
+
+.event-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Event card header */
+.event-card h2 {
+    color: #edc967;
+    font-size: 1.4em;
+    margin-bottom: 10px;
+}
+
+/* Event description */
+.event-card p {
+    color: #fff;
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+/* Event details */
+.event-card .details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.event-card .details span {
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #333;
+}
+
+/* Action buttons */
+.event-card .event-actions {
+    position: absolute;
+    bottom: 10px; /* Adjust the spacing from the bottom */
+    right: 10px; /* Adjust the spacing from the right */
+    display: flex;
+    gap: 10px;
+}
+
+.event-card .event-actions a {
+    padding: 10px 15px; 
+    text-decoration: none; 
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    color: white;
+    border: none; 
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.event-card .event-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.event-card .event-actions .view {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.event-card .event-actions .view:hover {
+    background-color: #0056b3;
+}
+
+.event-card .event-actions .edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.event-card .event-actions .edit:hover {
+    background-color: #e0a800;
+}
+
+.event-card .event-actions .delete {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.event-card .event-actions .delete:hover {
+    background-color: #c82333;
+}
+
+/* Status container styles */
+.status-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #660000; 
+    color: #ffcc00;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.status-container:hover {
+    background-color: #7a2525;
+    transform: scale(1.02);
+}
+
+/* Status text styles */
+.status-container .status {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.open-application,
+.close-application {
+    background-color: #ff4d11;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.open-application:hover {
+    background-color: #d43f0d;
+}
+
+.close-application:hover {
+    background-color: #b5320a;
+}
+
+/* Style for event image */
+.event-photo {
+    width: 100px;  /* Reduced width */
+    height: 100px; /* Reduced height to maintain a square aspect */
+    object-fit: cover; /* Ensures the image fills the given size while preserving the aspect ratio */
+    border-radius: 8px; /* Optional: rounds the corners */
+    margin-right: 10px; /* Adjusted spacing */
+}
+
