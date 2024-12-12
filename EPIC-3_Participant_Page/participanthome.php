@@ -73,22 +73,24 @@ if ($isFiltered) {
     }
 }
 
-// Handle form submission for toggling favorites
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_id'])) {
-    $event_id = intval($_POST['event_id']);
-    $action = $_POST['action'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_id'], $_POST['club_id'])) {
+    // Ensure to sanitize and get the values
+    $event_id = intval($_POST['event_id']);  // Event ID
+    $club_id = intval($_POST['club_id']);    // Club ID (new field)       // Assuming user_id is stored in the session
+
+    $action = $_POST['action'];  // Action (add or remove)
 
     if ($action === 'add') {
         // Add to favorites
-        $insertQuery = "INSERT IGNORE INTO favorites (id, event_id) VALUES (?, ?)";
+        $insertQuery = "INSERT IGNORE INTO favorites (id, event_id, club_id) VALUES (?, ?, ?)";
         $stmt = $conn->prepare($insertQuery);
-        $stmt->bind_param("ii", $user_id, $event_id);
+        $stmt->bind_param("iii", $user_id, $event_id, $club_id);
         $stmt->execute();
     } elseif ($action === 'remove') {
         // Remove from favorites
-        $deleteQuery = "DELETE FROM favorites WHERE id = ? AND event_id = ?";
+        $deleteQuery = "DELETE FROM favorites WHERE id = ? AND event_id = ? AND club_id = ?";
         $stmt = $conn->prepare($deleteQuery);
-        $stmt->bind_param("ii", $user_id, $event_id);
+        $stmt->bind_param("iii", $user_id, $event_id, $club_id);
         $stmt->execute();
     }
 }
@@ -258,6 +260,7 @@ mysqli_close($conn);
                             <button class="notification-button"><i class="fas fa-bell"></i></button>
                             <form method="POST" action="">
                                 <input type="hidden" name="event_id" value="<?php echo $event['event_id']; ?>">
+                                <input type="hidden" name="club_id" value="<?php echo $event['club_id']; ?>">
                                 <input type="hidden" name="action" value="<?php echo in_array($event['event_id'], $favoritedEvents) ? 'remove' : 'add'; ?>">
                                 <button type="submit" class="heart-button <?php echo in_array($event['event_id'], $favoritedEvents) ? 'red' : 'grey'; ?>">
                                     <i class="fa fa-heart"></i>
