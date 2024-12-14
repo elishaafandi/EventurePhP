@@ -1,0 +1,443 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #800c12;
+    color: #f5f4e6;
+    padding: 25px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial;
+    text-decoration: none;
+}
+
+header .logo:hover {
+    color:#ff9b00;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-left a {
+    color: #fff;
+    margin-left: 20px;
+    text-decoration: none;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.nav-left a {
+    color: #f5f4e6;
+    margin-left: 20px;
+    text-decoration: none;
+    font-family: Arial;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-left a:hover{
+    color: #f3d64c;
+    text-decoration: underline;
+}
+
+.nav-left a.active {
+    color: #f3d64c; 
+    text-decoration: underline; 
+}
+
+.participant-site, .organizer-site {
+    padding: 8px 16px;
+    border-radius: 20px;  
+    border: 1px solid #000;
+    font-weight:400;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.participant-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.organizer-site {
+    background-color: #f5f4e6;
+    color:#000;
+}
+
+.participant-site:hover {
+    background-color: #e08500;
+}
+
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 24px;
+    margin-left: 10px;
+}
+
+/* Profile Menu Styling */
+.profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.profile-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-left: 10px;
+    cursor: pointer;
+    object-fit: cover; /* Ensure proper image fit */
+}
+
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    z-index: 1000;
+    padding: 10px 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-menu .sign-out {
+    color: #d9534f;
+}
+
+.dropdown-menu hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #eee;
+}
+
+/* Show the dropdown only when the menu is open */
+.profile-menu.open .dropdown-menu {
+    display: block;
+}
+
+.search-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #641414;
+}
+
+.search-section h1 {
+    margin-right: 10px;
+    font-size: 30px;
+    color:#f5f4e6;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input,
+.search-bar select {
+    padding: 17px 20px;
+    margin-right: 10px;
+    border: 1.5px solid #000;
+    border-radius: 8px;
+}
+
+.search-bar button {
+    padding: 12px 20px;
+    background-color: #da6124;
+    color: #f5f4e6;
+    border: 1.5px solid #000;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.search-bar button:hover {
+    background-color: #da6124;
+}
+
+.search-button i {
+    margin-right: 8px; 
+}
+
+.main-content {
+    display: flex;
+    padding: 20px;
+}
+
+.filter-section {
+    background-color: #fff;
+    padding: 20px;
+    margin-right: 20px;
+    border-radius: 8px;
+    width: 20%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.clear-all {
+    font-size: 14px;
+    color: red;
+    cursor: pointer;
+}
+
+.filter-option {
+    margin-bottom: 20px;
+}
+
+.filter-option label {
+    font-size: 14px;
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+    cursor: pointer;
+    font-size: medium;
+}
+
+.filter-option input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.filter-option select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+}
+
+.event-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 75%;
+}
+
+.event-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    width: 100%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event-title-organizer {
+    display: flex;
+    flex-direction: column;
+}
+
+.event-title-organizer h2 {
+    margin: 0;
+}
+
+.event-organizer {
+    margin-top: 4px; /* Adjust spacing between title and organizer */
+    font-size: 0.9rem; /* Adjust font size as needed */
+    color: #555; /* Optional: Different color for organizer text */
+}
+.event-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.event-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.find-out-more-button, .join-button {
+    background-color: #a62b2b;
+    color: #fff;
+    border: 1px solid #f5f4e6;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.find-out-more-button:hover {
+    background-color: #e08500;
+}
+
+.join-button:hover {
+    background-color: #e08500;
+}
+
+/* Position the icons aligned with the header text, on the right */
+.event-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.notification-button, .heart-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555; /* Default gray color */
+    font-size: 1.3rem;
+    transition: color 0.3s ease; /* Smooth transition for color change */
+}
+
+.notification-button:hover {
+    color: #e8d52b; /* Example hover color */
+}
+
+/* For the favorite heart icon */
+.heart-button.grey {
+    color: #555; /* Default color for the heart icon */
+    transition: color 0.3s ease; /* Smooth transition for color change */
+}
+
+/* When the event is favorited, make the heart red */
+.heart-button.red {
+    color: red; /* Color for the favorited heart */
+}
+
+/* Hover effect for favorited heart */
+.heart-button.red:hover i {
+    color: #ff4b5c; /* Example hover color for the favorited heart */
+}
+
+/* Hover effect for non-favorited heart */
+.heart-button:hover i {
+    color: #ff4b5c; /* Example hover color for the non-favorited heart */
+}
+
+/* Modal Styling */
+/* Center the modal vertically and horizontally */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none; /* Hidden by default, displayed flex in JavaScript */
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    max-width: 600px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.modal-content {
+    width: 100%;
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: #333;
+    cursor: pointer;
+}
+
+.modal .event-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#eventModal .register-button,
+#eventModal .view-participant-button {
+    padding: 10px 20px;
+    background-color: #a50d0d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Disable styling for the view-participant-button */
+#eventModal .view-participant-button.disabled {
+    background-color: #d6d6d6; /* Light grey background for disabled */
+    color: #a1a1a1; /* Light grey text */
+    cursor: not-allowed; /* Change cursor to not-allowed */
+    pointer-events: none; /* Disable any click or hover events */
+    opacity: 0.6; /* Optional: reduces opacity for a dimmed effect */
+}
+
+#eventModal .register-button:hover,
+#eventModal .view-participant-button:hover {
+    background-color: #e08500;
+}
+
+#filter-btn {
+    padding: 10px 15px; /* Padding to make the button comfortable to click */
+    background-color: #d6d6d6; /* A blue background */
+    color: black; /* Text color is white */
+    border: none; /* Removes default border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Indicates the button is clickable */
+    font-size: 14.5px; /* Text size */
+}
+
+#filter-btn:hover {
+    background-color: #bebebe; /* Darker blue when hovered */
+}
+
+#filter-btn:active {
+    background-color: #bebebe; /* Even darker blue on click */
+    transform: translateY(0); /* Resets the hover effect */
+}
