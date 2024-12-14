@@ -1,0 +1,340 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #800c12;
+    color: #f5f4e6;
+    padding: 25px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial;
+    text-decoration: none;
+}
+
+header .logo:hover {
+    color:#ff9b00;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-left a {
+    color: #fff;
+    margin-left: 20px;
+    text-decoration: none;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.nav-left a {
+    color: #f5f4e6;
+    margin-left: 20px;
+    text-decoration: none;
+    font-family: Arial;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-left a:hover{
+    color: #f3d64c;
+    text-decoration: underline;
+}
+
+.nav-left a.active {
+    color: #f3d64c; 
+    text-decoration: underline; 
+}
+
+.participant-site, .organizer-site {
+    padding: 8px 16px;
+    border-radius: 20px;  
+    border: 1px solid #000;
+    font-weight:400;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.participant-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.organizer-site {
+    background-color: #f5f4e6;
+    color:#000;
+}
+
+.participant-site:hover {
+    background-color: #e08500;
+}
+
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 18px;
+    margin-left: 10px;
+}
+
+/* Main container
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}*/
+
+/* Responsive design */
+@media (max-width: 600px) {
+    main {
+        padding: 15px;
+    }
+    
+    header h1 {
+        font-size: 20px;
+    }
+    
+    section h2 {
+        font-size: 18px;
+    }
+    
+    button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Profile Menu Styling */
+.profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.profile-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-left: 10px;
+    cursor: pointer;
+    object-fit: cover; /* Ensure proper image fit */
+}
+
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    z-index: 1000;
+    padding: 10px 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-menu .sign-out {
+    color: #d9534f;
+}
+
+.dropdown-menu hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #eee;
+}
+
+/* Show the dropdown only when the menu is open */
+.profile-menu.open .dropdown-menu {
+    display: block;
+}
+
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+main {
+    max-width: 1250px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Section */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #800c12;
+    margin: 0;
+}
+
+/* Search Bar Container */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#searchInput {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+#searchInput:focus {
+    border-color: rgb(130, 0, 0);
+    box-shadow: 0 2px 8px rgba(231, 0, 0, 0.2);
+}
+
+/* Search Button */
+.search-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #da6124;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-button:hover {
+    background-color: #e08500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.search-button i {
+    margin-right: 5px;
+}
+
+/* Participants Grid */
+.participants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Participant Card */
+.participant-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Ensures both photo and text are aligned vertically */
+    background-color: #f9f9f9;
+    border: 1.5px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center; /* Keeps the text centered */
+}
+
+.participant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Participant Image */
+.participant-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 2px solid #800c12;
+}
+
+/* Participant Info */
+.participant-info {
+    text-align: center;
+    width: 100%; /* Ensure the text is centered relative to the card */
+}
+
+.participant-info h3 {
+    margin: 5px 0;
+    font-size: 18px;
+    color: #800c12
+}
+
+.participant-info p {
+    margin: 3px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* No Participants Message */
+.no-participants {
+    text-align: center;
+    font-size: 16px;
+    color: #999;
+    margin-top: 20px;
+}
+
+.back-btn:focus {
+    outline: none;
+}
+
