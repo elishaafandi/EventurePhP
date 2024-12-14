@@ -441,3 +441,12 @@ header .logo:hover {
     background-color: #bebebe; /* Even darker blue on click */
     transform: translateY(0); /* Resets the hover effect */
 }
+
+.event-photo {
+    width: 80px; /* Width of the passport-sized photo */
+    height: 100px; /* Height of the passport-sized photo */
+    border-radius: 8px; /* Optional: Rounded corners */
+    object-fit: cover; /* Ensure the image fits without distortion */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+    margin-right: 10px; /* Space between the photo and other content */
+}

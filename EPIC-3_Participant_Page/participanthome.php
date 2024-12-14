@@ -95,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_id'], $_POST['c
     }
 }
 
+
 // Fetch all events from the database
 $eventsQuery = "SELECT * FROM events";
 $eventsResult = $conn->query($eventsQuery);
@@ -289,7 +290,9 @@ mysqli_close($conn);
                             data-event-type="<?php echo htmlspecialchars($event['event_type']); ?>"
                             data-event-format="<?php echo htmlspecialchars($event['event_format']); ?>"
                             data-created-at="<?php echo date("d/m/Y H:i", strtotime($event['created_at'])); ?>"
-                            data-event-photo="<?php echo htmlspecialchars($event['event_photo']); ?>">
+                            data-photo="<?php echo !empty($event['event_photo']) 
+                            ? 'data:image/jpeg;base64,' . base64_encode($event['event_photo']) 
+                            : 'placeholder.jpg'; ?>">
                             Find Out More
                             </button>
                             <button class="join-button" 
@@ -368,12 +371,12 @@ mysqli_close($conn);
                 document.getElementById('modal-event-format').textContent = eventData.eventFormat;
                 document.getElementById('modal-event-photo').textContent = eventData.eventPhoto;
 
-                const eventPhoto = document.getElementById('modal-event-photo');
-                if (eventData.eventPhoto) {
-                eventPhoto.innerHTML = `<img src="${eventData.eventPhoto}" alt="Event Photo" style="width: 100%; height: auto;">`;
-                } else {
-                    eventPhoto.innerHTML = 'No image available';
-                }
+                const eventPhotoContainer = document.getElementById('modal-event-photo');
+                    if (eventData.eventPhoto.startsWith('data:image')) {
+                        eventPhotoContainer.innerHTML = `<img src="${eventData.eventPhoto}" alt="Event Photo" class="event-photo">`;
+                    } else {
+                        eventPhotoContainer.innerHTML = `<img src="placeholder.jpg" alt="No image available" class="event-photo">`;
+                    }
 
                 document.querySelector('.view-participant-button').setAttribute('data-event-id', eventData.eventId);
                 document.querySelector('.view-participant-button').setAttribute('data-role', eventData.role);
