@@ -190,7 +190,6 @@ while ($row = $result->fetch_assoc()) {
         <div class="nav-right">
             <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
             <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
-            <span class="notification-bell">🔔</span>
             <div class="profile-menu">
                 <!-- Ensure the profile image is fetched and rendered properly -->
                 <?php if (!empty($student['student_photo'])): ?>

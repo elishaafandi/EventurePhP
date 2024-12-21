@@ -88,17 +88,13 @@ header .logo:hover {
     color: #f5f4e6;
 }
 
-.notification-bell {
-    font-size: 24px;
-    margin-left: 10px;
-}
-
 /* Profile Menu Styling */
 .profile-menu {
     position: relative;
     display: flex;
     align-items: center;
     cursor: pointer;
+    z-index: 1000;
 }
 
 .profile-icon {
@@ -108,6 +104,7 @@ header .logo:hover {
     margin-left: 10px;
     cursor: pointer;
     object-fit: cover; /* Ensure proper image fit */
+    z-index: 1000;
 }
 
 .dropdown-menu {
@@ -149,6 +146,7 @@ header .logo:hover {
 /* Show the dropdown only when the menu is open */
 .profile-menu.open .dropdown-menu {
     display: block;
+    z-index: 1000;
 }
 
 .search-section {
@@ -156,45 +154,63 @@ header .logo:hover {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background-color: #641414;
+    background-color: #641414; /* Deep red background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for elevation */
 }
 
 .search-section h1 {
     margin-right: 10px;
     font-size: 30px;
-    color:#f5f4e6;
+    color: #f5f4e6; /* Light cream text color */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Slight text shadow */
 }
 
 .search-bar {
     display: flex;
     align-items: center;
+    gap: 10px; /* Even spacing between elements */
 }
 
 .search-bar input,
 .search-bar select {
-    padding: 17px 20px;
-    margin-right: 10px;
-    border: 1.5px solid #000;
+    padding: 15px 20px;
+    border: 1.5px solid #bfbfbf; /* Softer border color */
     border-radius: 8px;
+    background-color: #fff;
+    font-size: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Light shadow for input fields */
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.search-bar input:focus,
+.search-bar select:focus {
+    outline: none;
+    border-color: #da6124; /* Highlight border on focus */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* More pronounced shadow on focus */
 }
 
 .search-bar button {
     padding: 12px 20px;
-    background-color: #da6124;
-    color: #f5f4e6;
-    border: 1.5px solid #000;
+    background-color: #da6124; /* Accent color for button */
+    color: #f5f4e6; /* Cream text for contrast */
+    border: none;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
-    margin-right: 5px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); /* Button shadow */
 }
 
 .search-bar button:hover {
-    background-color: #da6124;
+    background-color: #b84f1c; /* Darker shade on hover */
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3); /* Elevated shadow on hover */
 }
 
 .search-button i {
-    margin-right: 8px; 
+    margin-right: 8px;
+    font-size: 18px;
+    vertical-align: middle;
 }
 
 .main-content {
@@ -202,23 +218,48 @@ header .logo:hover {
     padding: 20px;
 }
 
-.filter-section {
+
+.filter-drawer {
+    position: fixed;
+    top: 0;
+    right: -350px; /* Hidden by default (off-screen on the left) */
+    width: 300px;
+    height: 100%;
     background-color: #fff;
-    padding: 20px;
-    margin-right: 20px;
-    border-radius: 8px;
-    width: 20%;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Shadow on the right side */
+    overflow-y: auto;
+    transition: right 0.3s ease; /* Smooth slide-in effect */
+    z-index: 1000;
 }
 
-.filter-section h3 {
-    font-size: 18px;
-    font-weight: bold;
-    color: #000000;
+.filter-drawer.open {
+    right: 0; /* Slide into view from the left */
+}
+
+.filter-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #a50d0d;
+    color: #fff;
+    font-size: 18px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.filter-content {
+    padding: 20px;
+    margin-right: 20px;
+    border-radius: 8px;
+    width: 80%;
+    height: 0%;
 }
 
 .clear-all {
@@ -260,39 +301,72 @@ header .logo:hover {
     width: 75%;
 }
 
+.event-card p {
+    color: white;  /* Ensure the text is white */
+    z-index: 2;  /* Make sure text appears on top of other elements */
+    position: relative;  /* Necessary for z-index to work */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for better contrast */
+}
+
 .event-card {
     background-color: #fff;
     border-radius: 8px;
     padding: 20px;
     width: 100%;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    background-position: center;
+    overflow: hidden; /* Ensures the overlay does not go outside */
+}
+
+.event-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Black overlay with 50% opacity */
+    z-index: 1; /* Ensure overlay stays above background image */
 }
 
 .event-header {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 2;
+    color: white;
 }
 
 .event-title-organizer {
     display: flex;
     flex-direction: column;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for better contrast */
 }
 
 .event-title-organizer h2 {
     margin: 0;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for better contrast */
 }
 
 .event-organizer {
     margin-top: 4px; /* Adjust spacing between title and organizer */
     font-size: 0.9rem; /* Adjust font size as needed */
-    color: #555; /* Optional: Different color for organizer text */
+    color: white; /* Optional: Different color for organizer text */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for better contrast */
 }
+
 .event-footer {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 10px;
+    z-index: 2;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for better contrast */
 }
 
 .event-buttons {
@@ -303,19 +377,35 @@ header .logo:hover {
 .find-out-more-button, .join-button {
     background-color: #a62b2b;
     color: #fff;
-    border: 1px solid #f5f4e6;
+    border: 1px solid #a62b2b;
     padding: 10px 15px;
     border-radius: 10px;
     cursor: pointer;
     margin-left: 10px;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); /* Adds a clean, elevated effect */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions for interactions */
 }
 
-.find-out-more-button:hover {
-    background-color: #e08500;
+.join-button.disabled:hover {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    border: 1px solid #ccc;
 }
 
-.join-button:hover {
+.join-button.disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    border: 1px solid #ccc;
+}
+
+.find-out-more-button:hover, .join-button:hover {
     background-color: #e08500;
+    border: 1px solid #e08500;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Enhances the shadow for a modern hover effect */
+    transform: translateY(-2px); /* Slight lift for hover interactivity */
 }
 
 /* Position the icons aligned with the header text, on the right */
@@ -328,7 +418,7 @@ header .logo:hover {
     background: none;
     border: none;
     cursor: pointer;
-    color: #555; /* Default gray color */
+    color: #f4f4f4; /* Default gray color */
     font-size: 1.3rem;
     transition: color 0.3s ease; /* Smooth transition for color change */
 }
@@ -339,7 +429,7 @@ header .logo:hover {
 
 /* For the favorite heart icon */
 .heart-button.grey {
-    color: #555; /* Default color for the heart icon */
+    color: #f4f4f4; /* Default color for the heart icon */
     transition: color 0.3s ease; /* Smooth transition for color change */
 }
 
@@ -358,95 +448,75 @@ header .logo:hover {
     color: #ff4b5c; /* Example hover color for the non-favorited heart */
 }
 
-/* Modal Styling */
-/* Center the modal vertically and horizontally */
-.modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: none; /* Hidden by default, displayed flex in JavaScript */
-    align-items: center;
-    justify-content: center;
-    width: 80%;
-    max-width: 600px;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+.event-card.highlight {
+    border: 2px solid #ff9800; /* Highlight border */
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.8); /* Glow effect */
+    transition: all 0.3s ease;
 }
 
-.modal-content {
-    width: 100%;
-    position: relative;
-}
-
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 30px;
-    color: #333;
-    cursor: pointer;
-}
-
-.modal .event-actions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-#eventModal .register-button,
-#eventModal .view-participant-button {
-    padding: 10px 20px;
-    background-color: #a50d0d;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-/* Disable styling for the view-participant-button */
-#eventModal .view-participant-button.disabled {
-    background-color: #d6d6d6; /* Light grey background for disabled */
-    color: #a1a1a1; /* Light grey text */
-    cursor: not-allowed; /* Change cursor to not-allowed */
-    pointer-events: none; /* Disable any click or hover events */
-    opacity: 0.6; /* Optional: reduces opacity for a dimmed effect */
-}
-
-#eventModal .register-button:hover,
-#eventModal .view-participant-button:hover {
-    background-color: #e08500;
-}
-
-#filter-btn {
+/* FILTER BUTTON DRAWER */
+#apply-filter-btn {
     padding: 10px 15px; /* Padding to make the button comfortable to click */
     background-color: #d6d6d6; /* A blue background */
     color: black; /* Text color is white */
-    border: none; /* Removes default border */
+    border: solid #bebebe 1px; 
     border-radius: 5px; /* Rounded corners */
     cursor: pointer; /* Indicates the button is clickable */
     font-size: 14.5px; /* Text size */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Enhances the shadow for a modern hover effect */
 }
 
-#filter-btn:hover {
-    background-color: #bebebe; /* Darker blue when hovered */
+#apply-filter-btn:hover {
+    background-color: #bebebe ; /* Darker blue when hovered */
 }
 
-#filter-btn:active {
+#apply-filter-btn:active {
     background-color: #bebebe; /* Even darker blue on click */
     transform: translateY(0); /* Resets the hover effect */
 }
 
-.event-photo {
-    width: 80px; /* Width of the passport-sized photo */
-    height: 100px; /* Height of the passport-sized photo */
-    border-radius: 8px; /* Optional: Rounded corners */
-    object-fit: cover; /* Ensure the image fits without distortion */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
-    margin-right: 10px; /* Space between the photo and other content */
+/* Button Container */
+.event-status-buttons {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the left */
+    gap: 10px; /* Space between buttons */
+    margin-bottom: 20px; /* Space below the button group */
+}
+
+/* General Button Style */
+.status-btn {
+    background-color: #f4f4f4; /* Light gray background */
+    color: #333; /* Dark text color */
+    border: 2px solid #ccc; /* Subtle border */
+    padding: 8px 16px; /* Vertical and horizontal padding */
+    border-radius: 6px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor for hover effect */
+    font-weight: 600;
+    font-size: 14px;
+    outline: none;
+}
+
+/* Hover State */
+.status-btn:hover {
+    background-color: #a62b2b; /* Light blue background */
+    color: #fff; /* White text */
+    border-color: #a62b2b; /* Match border color */
+}
+
+/* Active State */
+.status-btn.active {
+    background-color: #a62b2b; /* Darker blue for active */
+    color: #fff; /* White text */
+    border-color: #a62b2b;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* ADVERTISEMENTS */
+.ads {
+    background-color: #fff;
+    padding: 20px;
+    margin-right: 20px;
+    border-radius: 8px;
+    width: 20%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }

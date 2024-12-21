@@ -23,6 +23,14 @@ $studentStmt->execute();
 $studentResult = $studentStmt->get_result();
 $student = $studentResult->fetch_assoc();
 
+$clubQuery = "SELECT * FROM clubs WHERE club_id = ?";
+$clubStmt = $conn->prepare($clubQuery);
+$clubStmt->bind_param("i", $club_id);  // Assuming $club_id is the identifier of the club
+$clubStmt->execute();
+$clubResult = $clubStmt->get_result();
+$club = $clubResult->fetch_assoc();
+
+
 // Initialize variables for organizer and event_type from user input
 $organizer = isset($_GET['organizer']) ? trim($_GET['organizer']) : '';
 $event_type = isset($_GET['event_type']) ? trim($_GET['event_type']) : '0'; // Set event_type to '0' by default
@@ -31,9 +39,13 @@ $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : 'anytime'; // D
 $location = isset($_GET['location']) ? $_GET['location'] : ''; // Empty if no location selected
 $event_role = isset($_GET['event_role']) ? $_GET['event_role'] : ''; // Corrected to event_role
 $event_format = isset($_GET['event_format']) ? $_GET['event_format'] : ''; // Corrected to event_format
+$sort_by = isset($_GET['start_date']) ? $_GET['start_date'] : 'Latest';
+// Check if highlight_event_id is present in the URL
+$highlight_event_id = isset($_GET['highlight_event_id']) ? intval($_GET['highlight_event_id']) : null;
+
 
 // Check if filters are applied to modify the query
-$isFiltered = !empty($organizer) || ($event_type !== '0') || ($start_date !== 'anytime') || !empty($location) || !empty($event_role) || !empty($event_format);
+$isFiltered = !empty($organizer) || ($event_type !== '0') || ($start_date !== 'anytime') || !empty($location) || !empty($event_role) || !empty($event_format) || ($sort_by !== 'Latest');
 
 if ($isFiltered) {
     if (!empty($organizer)) {
@@ -52,6 +64,12 @@ if ($isFiltered) {
         // If a specific start date is selected, filter by that date
         $sql .= " AND start_date = '" . mysqli_real_escape_string($conn, $start_date) . "'";
     }
+
+    if ($sort_by == 'Oldest') {
+        $sql .= " ORDER BY start_date ASC"; 
+    } elseif ($sort_by == 'Latest') {
+        $sql .= " ORDER BY start_date DESC"; 
+    } 
 
     // Filter by location
     if (!empty($location)) {
@@ -96,10 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_id'], $_POST['c
 }
 
 
-// Fetch all events from the database
-$eventsQuery = "SELECT * FROM events";
-$eventsResult = $conn->query($eventsQuery);
-
 // Fetch all favorited event IDs for the user
 $favoritesQuery = "SELECT event_id FROM favorites WHERE id = ?";
 $stmt = $conn->prepare($favoritesQuery);
@@ -111,9 +125,6 @@ $favoritedEvents = [];
 while ($row = $result->fetch_assoc()) {
     $favoritedEvents[] = $row['event_id'];
 }
-
-// Always order by start date
-$sql .= " ORDER BY start_date DESC";
 
 // Execute the query
 $result = mysqli_query($conn, $sql);
@@ -141,6 +152,8 @@ mysqli_close($conn);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+
+    <!-- HEADER NAVIGATION BAR  -->   
     <header>
         <div class="header-left">
             <a href="participanthome.php" class="logo">EVENTURE</a> 
@@ -154,7 +167,6 @@ mysqli_close($conn);
         <div class="nav-right">
             <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
             <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
-            <span class="notification-bell">🔔</span>
             <div class="profile-menu">
                 <!-- Ensure the profile image is fetched and rendered properly -->
                 <?php if (!empty($student['student_photo'])): ?>
@@ -173,30 +185,51 @@ mysqli_close($conn);
         </div>
     </header>
 
-    <main>
-        <div class="search-section">
-            <h1>Find Your Event!</h1>
-            <form method="GET" action="participanthome.php" class="search-bar">
-                <input type="text" name="organizer" placeholder="Enter Club Name" value="<?php echo htmlspecialchars($organizer); ?>">
-                <select name="event_type">
-                    <option value="0" <?php echo $event_type === '0' ? 'selected' : ''; ?>>Choose Category</option>
-                    <option value="sports" <?php echo $event_type === '1' ? 'selected' : ''; ?>>Sports</option>
-                    <option value="volunteer" <?php echo $event_type === '2' ? 'selected' : ''; ?>>Volunteer</option>
-                    <option value="academic" <?php echo $event_type === '3' ? 'selected' : ''; ?>>Academic</option>
-                    <option value="social" <?php echo $event_type === '4' ? 'selected' : ''; ?>>Social</option>
-                    <option value="cultural" <?php echo $event_type === '5' ? 'selected' : ''; ?>>Cultural</option>
-                    <option value="college" <?php echo $event_type === '6' ? 'selected' : ''; ?>>College</option>
-                    <option value="7" <?php echo $event_type === '7' ? 'selected' : ''; ?>>Uniform Bodies</option>
-                </select>
-                <button type="submit" class="search-button"><i class="fas fa-search"></i> Search</button>
-                <button type="button" onclick="clearSearch()" class="clear-button"><i class="fas fa-times"></i> Clear Search</button>
-            </form>
-        </div>
+    <!-- SEARCH FOR EVENTS -->   
+    <div class="search-section">
+        <h1>Find Your Event!</h1>
+        <form method="GET" action="participanthome.php" class="search-bar">
+            <input type="text" name="organizer" placeholder="Enter Club Name" value="<?php echo htmlspecialchars($organizer); ?>">
+            <select name="event_type">
+                <option value="0" <?php echo $event_type === '0' ? 'selected' : ''; ?>>Choose Category</option>
+                <option value="sports" <?php echo $event_type === '1' ? 'selected' : ''; ?>>Sports</option>
+                <option value="volunteer" <?php echo $event_type === '2' ? 'selected' : ''; ?>>Volunteer</option>
+                <option value="academic" <?php echo $event_type === '3' ? 'selected' : ''; ?>>Academic</option>
+                <option value="social" <?php echo $event_type === '4' ? 'selected' : ''; ?>>Social</option>
+                <option value="cultural" <?php echo $event_type === '5' ? 'selected' : ''; ?>>Cultural</option>
+                <option value="college" <?php echo $event_type === '6' ? 'selected' : ''; ?>>College</option>
+            </select>
+            <button type="submit" class="search-button">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <button type="button" onclick="clearSearch()" class="clear-button">
+                <i class="fas fa-times"></i> Clear Search
+            </button>
+            <button type="button" id="filter-btn" class="filter-button">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </form>
+    </div>
 
-    <main class="main-content">
-    <aside class="filter-section">
-    <form action="participanthome.php" method="GET">
-        <h3>Filter Event <span class="clear-all">Clear all</span></h3>
+<!-- FILTER + ADS + EVENT CARDS -->   
+<main class="main-content">
+
+    <!-- FILTER EVENTS THAT OPEN UP AS DRAWER -->
+    <aside id = "filter-drawer" class="filter-drawer">
+
+    <div class="filter-header">
+        <h3>Filter Event</h3>
+        <button id="close-filter-btn" class="close-button">&times;</button>
+    </div>
+
+    <form action="participanthome.php" class="filter-content" method="GET">
+        <div class="filter-option">
+            <label for="sort-by">Sort By</label>
+            <select id="sort-by" name="sort_by">
+                <option value="Latest" <?php echo $sort_by == 'Latest' ? 'selected' : ''; ?>>Latest</option>
+                <option value="Oldest" <?php echo $sort_by == 'Oldest' ? 'selected' : ''; ?>>Oldest</option>
+            </select>
+        </div>
         <div class="filter-option">
             <label for="date-post">Date Post</label>
             <select id="date-post" name="start_date">
@@ -238,222 +271,148 @@ mysqli_close($conn);
                 <?php echo ($event_format === 'online') ? 'checked' : ''; ?>> Online
             </label>
         </div>
-        <button id="filter-btn">Apply Filters</button>
+        <button id="apply-filter-btn">Apply Filters</button>
     </form>
     </aside>
 
+    <!-- ADVERTISEMENTS -->
+    <aside class = "ads">
+        <h2> advertisements </h2>
+    </aside>
 
-        <section class="event-list">
-            <?php if ($isFiltered): ?>
-                <p><?php echo count($events); ?> results found</p>
-            <?php else: ?>
-                <p>Showing all events</p>
-            <?php endif; ?>
+    <!-- EVENT LISTING -->                
+    <section class="event-list">
+        
+        <!-- EVENT STATUS BUTTON (ONGOING, UPCOMING, PAST) -->   
+        <div class="event-status-buttons">
+            <button type="button" class="status-btn active" onclick="filterEventsByStatus('all', this)">Show All</button>
+            <button type="button" class="status-btn" onclick="filterEventsByStatus('ongoing', this)">Ongoing</button>
+            <button type="button" class="status-btn" onclick="filterEventsByStatus('upcoming', this)">Upcoming</button>
+            <button type="button" class="status-btn" onclick="filterEventsByStatus('past', this)">Completed</button>
+            <button type="button" class="status-btn" onclick="filterEventsByStatus('past', this)">Past</button>
+        </div>
 
-            <?php foreach ($events as $event): ?>
-                <div class="event-card">
-                    <div class="event-header">
-                        <div class="event-title-organizer">
-                            <h2><?php echo htmlspecialchars($event['event_name']); ?></h2>
-                            <span class="event-organizer"><?php echo htmlspecialchars($event['organizer']); ?></span>
-                        </div>
-                        <div class="event-icons">
-                            <button class="notification-button"><i class="fas fa-bell"></i></button>
-                            <form method="POST" action="">
-                                <input type="hidden" name="event_id" value="<?php echo $event['event_id']; ?>">
-                                <input type="hidden" name="club_id" value="<?php echo $event['club_id']; ?>">
-                                <input type="hidden" name="action" value="<?php echo in_array($event['event_id'], $favoritedEvents) ? 'remove' : 'add'; ?>">
-                                <button type="submit" class="heart-button <?php echo in_array($event['event_id'], $favoritedEvents) ? 'red' : 'grey'; ?>">
-                                    <i class="fa fa-heart"></i>
-                                </button>
-                            </form>
-                        </div>
+        <!-- FILTERED MESSAGE -->
+        <?php if ($isFiltered): ?>
+            <p><?php echo count($events); ?> results found</p>
+        <?php endif; ?>
+
+        <?php foreach ($events as $event): ?>
+            <div class="event-card" data-event-id="<?php echo $event['event_id']; ?>" style="background-image: url('data:image/jpeg;base64,<?php echo base64_encode($event['event_photo']); ?>');">
+                <div class="event-overlay"></div> 
+                <div class="event-header">
+                    <div class="event-title-organizer">
+                        <h2><?php echo htmlspecialchars($event['event_name']); ?></h2>
+                        <span class="event-organizer"><?php echo htmlspecialchars($event['organizer']); ?></span>
                     </div>
-                    <p><?php echo htmlspecialchars($event['description']); ?></p>
-                    <div class="event-footer">
-                        <span class="event-location"><?php echo htmlspecialchars($event['location']); ?></span>
-                        <span class="event-role"><?php echo htmlspecialchars($event['event_role']); ?></span>
-                        <span class="event-status"><?php echo htmlspecialchars($event['status']); ?></span>
-                        <div class="event-buttons">
-                            <button class="find-out-more-button"
-                            data-event-id="<?php echo htmlspecialchars($event['event_id']); ?>"
-                            data-title="<?php echo htmlspecialchars($event['event_name']); ?>" 
-                            data-organizer="<?php echo htmlspecialchars($event['organizer']); ?>" 
-                            data-date="<?php echo date("d/m/Y", strtotime($event['start_date'])); ?>" 
-                            data-time="<?php echo date("H:i", strtotime($event['start_date'])); ?>" 
-                            data-location="<?php echo htmlspecialchars($event['location']); ?>" 
-                            data-description="<?php echo htmlspecialchars($event['description']); ?>" 
-                            data-role="<?php echo htmlspecialchars($event['event_role']); ?>"  
-                            data-total-slots="<?php echo htmlspecialchars($event['total_slots']); ?>"
-                            data-available-slots="<?php echo htmlspecialchars($event['available_slots']); ?>"
-                            data-event-status="<?php echo htmlspecialchars($event['status']); ?>"
-                            data-event-type="<?php echo htmlspecialchars($event['event_type']); ?>"
-                            data-event-format="<?php echo htmlspecialchars($event['event_format']); ?>"
-                            data-created-at="<?php echo date("d/m/Y H:i", strtotime($event['created_at'])); ?>"
-                            data-photo="<?php echo !empty($event['event_photo']) 
-                            ? 'data:image/jpeg;base64,' . base64_encode($event['event_photo']) 
-                            : 'placeholder.jpg'; ?>">
-                            Find Out More
+
+                    <div class="event-icons">
+                        <button class="notification-button"><i class="fas fa-bell"></i></button>
+                        <form method="POST" action="">
+                            <input type="hidden" name="event_id" value="<?php echo $event['event_id']; ?>">
+                            <input type="hidden" name="club_id" value="<?php echo $event['club_id']; ?>">
+                            <input type="hidden" name="action" value="<?php echo in_array($event['event_id'], $favoritedEvents) ? 'remove' : 'add'; ?>">
+                            <button type="submit" class="heart-button <?php echo in_array($event['event_id'], $favoritedEvents) ? 'red' : 'grey'; ?>">
+                                <i class="fa fa-heart"></i>
                             </button>
-                            <button class="join-button" 
+                        </form>
+                    </div>
+                </div>
+
+                <p><?php echo htmlspecialchars($event['description']); ?></p>
+                    
+                <div class="event-footer">
+                    <span class="event-location"><?php echo htmlspecialchars($event['location']); ?></span>
+                    <span class="event-role"><?php echo htmlspecialchars($event['event_role']); ?></span>
+                    <span class="event-date"> <?php echo date('d-m-y', strtotime($event['start_date'])); ?></span>
+                    <div class="event-buttons">
+                        <button class="find-out-more-button" 
+                            onclick="window.location.href='findoutmore.php?event_id=<?php echo urlencode($event['event_id']); ?>'">
+                            Find Out More
+                        </button>
+                        <button class="join-button" 
                             data-role="<?php echo htmlspecialchars($event['event_role']); ?>" 
                             data-event-id="<?php echo htmlspecialchars($event['event_id']); ?>">
                             Join Event
-                            </button>
-                        </div>
+                        </button>
                     </div>
                 </div>
-            <?php endforeach; ?>
-        </section>
-    </main>
-
- <!-- Modal Structure for Event Details -->
-    <div id="eventModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <div id="modal-details">
-            <h1 id="modal-title"><?php echo isset($event['event_name']) ? htmlspecialchars($event['event_name']) : ''; ?></h1>
-            <p><strong>Organizer:</strong> <span id="modal-organizer"><?php echo isset($event['organizer']) ? htmlspecialchars($event['organizer']) : ''; ?></span></p>
-            <p><strong>Date:</strong> <span id="modal-date"><?php echo isset($event['start_date']) ? date("d/m/Y", strtotime($event['start_date'])) : ''; ?></span></p>
-            <p><strong>Time:</strong> <span id="modal-time"><?php echo isset($event['start_date']) ? date("H:i", strtotime($event['start_date'])) : ''; ?></span></p>
-            <p><strong>Location:</strong> <span id="modal-location"><?php echo isset($event['location']) ? htmlspecialchars($event['location']) : ''; ?></span></p>
-            <p><strong>Description:</strong> <span id="modal-description"><?php echo isset($event['description']) ? htmlspecialchars($event['description']) : ''; ?></span></p>
-            <p><strong>Total Slots:</strong> <span id="modal-total-slots"><?php echo isset($event['total_slots']) ? htmlspecialchars($event['total_slots']) : ''; ?></span></p>
-            <p><strong>Available Slots:</strong> <span id="modal-available-slots"><?php echo isset($event['available_slots']) ? htmlspecialchars($event['available_slots']) : ''; ?></span></p>
-            <p><strong>Status:</strong> <span id="modal-event-status"><?php echo isset($event['status']) ? htmlspecialchars($event['status']) : ''; ?></span></p>
-            <p><strong>Event Type:</strong> <span id="modal-event-type"><?php echo isset($event['event_type']) ? htmlspecialchars($event['event_type']) : ''; ?></span></p>
-            <p><strong>Format:</strong> <span id="modal-event-format"><?php echo isset($event['event_format']) ? htmlspecialchars($event['event_format']) : ''; ?></span></p>
-            <p><strong>Event Photo:</strong> <span id="modal-event-photo"><?php echo isset($event['event_photo']) ? htmlspecialchars($event['event_photo']) : ''; ?></span></p>
-                <div class="event-actions">
-                    <button class="register-button" 
-                        data-role="<?php echo isset($event['event_role']) ? htmlspecialchars($event['event_role']) : ''; ?>">
-                        Register Now
-                    </button>
-                    <button 
-                        class="view-participant-button <?php echo ($event_role === 'Crew') ? 'disabled' : ''; ?>" 
-                        data-role="<?php echo htmlspecialchars($event_role); ?>" 
-                        data-event-id="<?php echo htmlspecialchars($event['event_id']); ?>"
-                        <?php echo ($event_role === 'Crew') ? 'disabled' : ''; ?>>
-                        View Participant
-                    </button>
-
-                </div>
             </div>
-        </div>
-    </div>
+        <?php endforeach; ?>
+    </section>
 
-<!-- JavaScript to handle modal functionality -->
+</main>
+
+
+<!-- JAVA SCRIPT FOR HANDLING FUNCTIONALITY -->
 <script>
-    function clearSearch() {
+
+/// Handle Profile Icon Click
+document.addEventListener("DOMContentLoaded", function () {
+    const profileMenu = document.querySelector(".profile-menu");
+    const profileIcon = document.querySelector(".profile-icon");
+
+    // Toggle dropdown on profile icon click
+    profileIcon.addEventListener("click", function (event) {
+        event.stopPropagation(); // Prevent event from bubbling
+        profileMenu.classList.toggle("open");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!profileMenu.contains(event.target)) {
+            profileMenu.classList.remove("open");
+        }
+    });
+});
+
+document.querySelectorAll('.join-button').forEach(button => {
+    button.addEventListener('click', () => {
+        const role = button.dataset.role;
+        const eventId = button.dataset.eventId;
+        window.location.href = `${role}form.php?event_id=${eventId}`;
+    });
+});
+
+// Get the event ID to highlight from the URL
+const urlParams = new URLSearchParams(window.location.search);
+const highlightEventId = urlParams.get('highlight_event_id');
+
+if (highlightEventId) {
+    // Find the event card with the matching data-event-id
+    const targetCard = document.querySelector(`.event-card[data-event-id='${highlightEventId}']`);
+    if (targetCard) {
+        // Add a highlight class to the card
+        targetCard.classList.add('highlight');
+
+        // Scroll to the highlighted card
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// CLEAR ALL SEARCH/REFRESH
+function clearSearch() {
     // Clear input fields
     document.querySelector('input[name="organizer"]').value = '';
     document.querySelector('select[name="event_type"]').value = '0';
     // Submit the form to refresh and show all events
     document.querySelector('.search-bar').submit();
-    }
+}
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const modal = document.getElementById('eventModal');
-        const closeButton = document.querySelector('.close-button');
-
-            // Function to open modal
-            function openModal(eventData) {
-                document.getElementById('modal-title').textContent = eventData.title;
-                document.getElementById('modal-organizer').textContent = eventData.organizer;
-                document.getElementById('modal-date').textContent = eventData.date;
-                document.getElementById('modal-time').textContent = eventData.time;
-                document.getElementById('modal-location').textContent = eventData.location;
-                document.getElementById('modal-description').textContent = eventData.description;
-                document.getElementById('modal-total-slots').textContent = eventData.totalSlots;
-                document.getElementById('modal-available-slots').textContent = eventData.availableSlots;
-                document.getElementById('modal-event-status').textContent = eventData.eventStatus;
-                document.getElementById('modal-event-type').textContent = eventData.eventType;
-                document.getElementById('modal-event-format').textContent = eventData.eventFormat;
-                document.getElementById('modal-event-photo').textContent = eventData.eventPhoto;
-
-                const eventPhotoContainer = document.getElementById('modal-event-photo');
-                    if (eventData.eventPhoto.startsWith('data:image')) {
-                        eventPhotoContainer.innerHTML = `<img src="${eventData.eventPhoto}" alt="Event Photo" class="event-photo">`;
-                    } else {
-                        eventPhotoContainer.innerHTML = `<img src="placeholder.jpg" alt="No image available" class="event-photo">`;
-                    }
-
-                document.querySelector('.view-participant-button').setAttribute('data-event-id', eventData.eventId);
-                document.querySelector('.view-participant-button').setAttribute('data-role', eventData.role);
-                document.querySelector('.register-button').setAttribute('data-role', eventData.role); // Set the role attribute
-                document.querySelector('.register-button').setAttribute('data-event-id', eventData.eventId); // Set the event_id attribute
-
-                modal.style.display = 'flex'; // Set to flex to enable centering
-            }
-
-            // Event listener to close modal
-            closeButton.onclick = function () {
-                modal.style.display = 'none';
-            };
-
-            // Close modal when clicking outside of it
-            window.onclick = function (event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            };
-
-            // Attach click event to each "Find Out More" button
-            document.querySelectorAll('.find-out-more-button').forEach(button => {
-                button.addEventListener('click', function () {
-                    const eventData = {
-                        title: button.getAttribute('data-title'),
-                        organizer: button.getAttribute('data-organizer'),
-                        date: button.getAttribute('data-date'),
-                        time: button.getAttribute('data-time'),
-                        location: button.getAttribute('data-location'),
-                        description: button.getAttribute('data-description'),
-                        role: button.getAttribute('data-role'),
-                        eventId: button.getAttribute('data-event-id'),
-                        totalSlots: button.getAttribute('data-total-slots'),
-                        availableSlots: button.getAttribute('data-available-slots'),
-                        eventStatus: button.getAttribute('data-event-status'),
-                        eventType: button.getAttribute('data-event-type'),
-                        eventFormat: button.getAttribute('data-event-format'),
-                        eventPhoto: button.getAttribute('data-photo')
-                    };
-                    openModal(eventData);
-                });
-            });
-
-            // Event listener for register button
-            document.querySelector('.register-button').addEventListener('click', function () {
-                const role = this.getAttribute('data-role').trim();
-                const eventId = this.getAttribute('data-event-id'); // Get the event_id
-                if (role === 'Crew') {
-                    window.location.href = `crewform.php?event_id=${eventId}`; // Redirect to crew form
-                } else {
-                    window.location.href = `participantform.php?event_id=${eventId}`; // Redirect to participant registration
-                }
-            });
-
-            document.querySelectorAll('.join-button').forEach(button => {
-            button.addEventListener('click', function () {
-                const role = this.getAttribute('data-role').trim();
-                const eventId = this.getAttribute('data-event-id'); // Get the event_id
-                if (role === 'Crew') {
-                    window.location.href = `crewform.php?event_id=${eventId}`; // Redirect to crew form
-                } else {
-                    window.location.href = `participantform.php?event_id=${eventId}`; // Redirect to participant registration
-                }
-            });
-        });
-
-        document.querySelectorAll('.view-participant-button').forEach(button => {
-        button.addEventListener('click', function () {
-            const role = button.getAttribute('data-role').trim();
-            const eventId = button.getAttribute('data-event-id');
-            if (role === 'Participant') {
-                window.location.href = `viewparticipantlist.php?event_id=${eventId}`;
-            }
-        });
-    });
+// OPEN AND CLOSE THE FILTER USING THE FILTER BUTTON
+document.getElementById("filter-btn").addEventListener("click", () => {
+    const filterDrawer = document.getElementById("filter-drawer");
+    filterDrawer.classList.toggle("open");
 });
+
+// CLOSE THE FILTER DRAWER USING X BUTTON
+document.getElementById("close-filter-btn").addEventListener("click", () => {
+    document.getElementById("filter-drawer").classList.remove("open");
+});
+
+const filterDrawer = document.getElementById("filter-drawer");
+const openBtn = document.getElementById("open-filter-btn");
+const closeBtn = document.getElementById("close-filter-btn");
 
     document.getElementById("filter-btn").addEventListener("click", () => {
     const datePost = document.getElementById("date-post").value;
@@ -475,7 +434,7 @@ mysqli_close($conn);
 
     // Call a function to apply filters
     applyFilters(datePost, locationFilters, roleFilters, formatFilters);
-});
+    });
 
 function applyFilters(datePost, locationFilters, roleFilters, formatFilters) {
     // Assuming events are dynamically loaded with a specific class or container
@@ -523,24 +482,37 @@ document.querySelector(".clear-all").addEventListener("click", () => {
     applyFilters("anytime", [], [], []);
 });
 
-/// Handle Profile Icon Click
-document.addEventListener("DOMContentLoaded", function () {
-    const profileMenu = document.querySelector(".profile-menu");
-    const profileIcon = document.querySelector(".profile-icon");
+function filterEventsByStatus(status, clickedButton) {
+    const events = document.querySelectorAll(".event-card");
+    const currentDate = new Date();
 
-    // Toggle dropdown on profile icon click
-    profileIcon.addEventListener("click", function (event) {
-        event.stopPropagation(); // Prevent event from bubbling
-        profileMenu.classList.toggle("open");
-    });
+    // Update button states
+    const buttons = document.querySelectorAll(".status-btn");
+    buttons.forEach(btn => btn.classList.remove("active")); // Remove active class
+    clickedButton.classList.add("active"); // Add active class to clicked button
 
-    // Close dropdown when clicking outside
-    document.addEventListener("click", function (event) {
-        if (!profileMenu.contains(event.target)) {
-            profileMenu.classList.remove("open");
+    events.forEach(event => {
+        const eventDate = new Date(event.getAttribute("data-date"));
+        let eventStatus = "";
+
+        if (eventDate.toDateString() === currentDate.toDateString()) {
+            eventStatus = "ongoing";
+        } else if (eventDate > currentDate) {
+            eventStatus = "upcoming";
+        } else if (eventDate < currentDate) {
+            eventStatus = "past";
+        }
+
+        // Show or hide events based on status
+        if (eventStatus === status || status === "all") {
+            event.style.display = "block";
+        } else {
+            event.style.display = "none";
         }
     });
-});
+}
+
+
 
 </script>
 
