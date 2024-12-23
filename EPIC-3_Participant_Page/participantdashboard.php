@@ -38,9 +38,10 @@ if ($result_username && mysqli_num_rows($result_username) > 0) {
 }
 
 // Query to get event crews (assuming 'event_role' column marks crew members)
-$query_crew = "SELECT ec.crew_id, ec.event_id, e.status, e.organizer, e.event_name, ec.role, ec.application_status, ec.created_at, ec.updated_at
+$query_crew = "SELECT ec.crew_id, ec.event_id, e.status, e.organizer, e.event_name, ec.role, ec.application_status, ec.created_at, ec.updated_at, c.club_photo
                FROM event_crews ec
                JOIN events e ON ec.event_id = e.event_id
+               JOIN clubs c ON e.club_id = c.club_id
                WHERE ec.id = ?";
 $stmt_crew = $conn->prepare($query_crew);
 $stmt_crew->bind_param("i", $user_id);
@@ -48,9 +49,10 @@ $stmt_crew->execute();
 $result_crew = $stmt_crew->get_result();
 
 // Query to get event participants (non-crew members)
-$query_participant = "SELECT ep.participant_id, e.organizer, e.status, ep.event_id, e.event_name, ep.registration_status, ep.created_at, ep.updated_at
+$query_participant = "SELECT ep.participant_id, e.organizer, e.status, ep.event_id, e.event_name, ep.registration_status, ep.created_at, ep.updated_at, c.club_photo
                       FROM event_participants ep
                       JOIN events e ON ep.event_id = e.event_id
+                      JOIN clubs c ON e.club_id = c.club_id
                       WHERE ep.id = ?";
 $stmt_participant = $conn->prepare($query_participant);
 $stmt_participant->bind_param("i", $user_id);
@@ -165,6 +167,19 @@ while ($row = $result->fetch_assoc()) {
     $favorite_events[] = $row;
 }
 
+if (isset($_GET['event_id'])) {
+    $event_id = intval($_GET['event_id']);
+    // Fetch event details based on $event_id
+    $query_event = "SELECT * FROM events WHERE event_id = ?";
+    $stmt = $conn->prepare($query_event);
+    $stmt->bind_param("i", $event_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $event = $result->fetch_assoc();
+    // Display event details
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -208,322 +223,289 @@ while ($row = $result->fetch_assoc()) {
         </div>
     </header>
 
-    <main>
-        <section class="main-content">
-            <div class="event-dashboard">
-                <h2>Welcome <?php echo htmlspecialchars($username); ?>!</h2>
-            </div>
 
-            <div class="event-status">
-                <h2>Applied Events</h2><br>
-                
-                <!-- Crew Events -->
-                <h3>Crew</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Event Name</th>
-                            <th>Organizer</th>
-                            <th>Application Date</th>
-                            <th>Application Status</th>
-                            <th>Event Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (!empty($events_crews)): ?>
-                        <?php $no = 1; ?>
-                        <?php foreach ($events_crews as $event): ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><?php echo htmlspecialchars($event['event_name']); ?></td>
-                                <td><?php echo htmlspecialchars($event['organizer']); ?></td>
-                                <td><?php echo date('Y-m-d', strtotime($event['created_at'])); ?></td>
-                                <td>
-                                <?php 
-                                    if ($event['application_status'] == 'applied') {
-                                        echo '<span class="status applied">Applied</span>';
-                                    } elseif ($event['application_status'] == 'interview') {
-                                        echo '<span class="status interview">Interview</span>';
-                                    } elseif ($event['application_status'] == 'rejected') {
-                                        echo '<span class="status rejected">Rejected</span>';
-                                    } elseif ($event['application_status'] == 'pending') {
-                                        echo '<span class="status pending">Pending</span>';
-                                    } elseif ($event['application_status'] == 'accepted') {
-                                        echo '<span class="status accepted">Accepted</span>';
-                                    }
+<main>
+
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+    <h1>Welcome, <?php echo htmlspecialchars($username); ?>!</h1>
+</div>
+
+<section class="main-content">
+    <div class="primary-content">
+
+        <!-- CREW EVENTS APPLICATION STATUS -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h2>Crew Events</h2>
+            </div>
+            <div class="event-grid-crew">
+                <?php if (!empty($events_crews)): ?>
+                    <?php foreach ($events_crews as $event): ?>
+                        <div class="event-card-crew">
+                        <div class="event-card-icon">
+                            <?php if (!empty($event['club_photo'])): ?>
+                                <?php
+                                    // Convert the BLOB data to a base64-encoded string
+                                    $clubPhotoBase64 = base64_encode($event['club_photo']);
+                                    $clubPhotoSrc = 'data:image/jpeg;base64,' . $clubPhotoBase64; // Adjust MIME type if needed
                                 ?>
-                                </td>
-                                <td>
-                                <?php 
-                                    if ($event['status'] == 'upcoming') {
-                                        echo '<span class="status pending">Upcoming</span>';
-                                    } elseif ($event['status'] == 'ongoing') {
-                                        echo '<span class="status interview">Ongoing</span>';
-                                    } elseif ($event['status'] == 'completed') {
-                                        echo '<span class="status applied">Completed</span>';
-                                    } elseif ($event['status'] == 'cancelled') {
-                                        echo '<span class="status rejected">Cancelled</span>';
-                                    }
-                                ?>
-                                </td>
-                                <td>
+                                <img src="<?php echo $clubPhotoSrc; ?>" alt="Club Photo" class="club-photo">
+                            <?php else: ?>
+                                <img src="default_club_photo.jpg" alt="Default Club Photo" class="club-photo">
+                            <?php endif; ?>
+                        </div>
+                        
+                            <div class="event-card-details">
+                                <h3><?php echo htmlspecialchars($event['event_name']); ?></h3>
+                                <p><?php echo htmlspecialchars($event['organizer']); ?></p>
+                                <p>Applied On: <?php echo date('d-m-y', strtotime($event['created_at'])); ?></p>
+                                <p class="event-status">Event Status: <span class="status-<?php echo strtolower($event['status']); ?>"><?php echo htmlspecialchars($event['status']); ?></span></p>
+                            </div>
+                            <span class="event-status-badge status-<?php echo strtolower($event['application_status']); ?>">
+                                <?php echo htmlspecialchars($event['application_status']); ?>
+                            </span>
+                            
+                            <!-- View Button -->
+                            <div class="event-card-actions">
                                 <a href="viewcrewapplication.php?event_id=<?php echo $event['event_id']; ?>" class="btn view">View</a>
 
-                                <!-- Edit button enabled only if application status is 'pending' or 'applied' and event status is 'upcoming' or 'ongoing' -->
+                                <!-- Edit button -->
                                 <a href="editcrewform.php?event_id=<?php echo $event['event_id']; ?>"
-                                    class="btn edit <?php echo (in_array($event['application_status'], ['pending', 'applied']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'disabled'; ?>"
-                                    <?php echo (in_array($event['application_status'], ['pending', 'applied']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'onclick="return false;"'; ?>>
+                                    class="btn edit <?php echo (in_array($event['application_status'], ['pending']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'disabled'; ?>"
+                                    <?php echo (in_array($event['application_status'], ['pending']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'onclick="return false;"'; ?>>
                                     Edit
                                 </a>
 
-                                <!-- Cancel button enabled only if application status is 'pending' or 'applied' and event status is 'upcoming' or 'ongoing' -->
+                                <!-- Cancel button -->
                                 <a href="deletecrewform.php?event_id=<?php echo $event['event_id']; ?>"
-                                    class="btn delete <?php echo (in_array($event['application_status'], ['pending', 'applied']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'disabled'; ?>"
-                                    <?php echo (in_array($event['application_status'], ['pending', 'applied']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? 
+                                    class="btn delete <?php echo (in_array($event['application_status'], ['pending']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'disabled'; ?>"
+                                    <?php echo (in_array($event['application_status'], ['pending']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? 
                                     'onclick="return confirm(\'Are you sure you want to delete this application?\')"' : 'onclick="return false;"'; ?>>
                                     Cancel
                                 </a>
 
-                               <!-- Rate button enabled only if event status is 'completed' -->
-                                    <a href="rate_event.php?event_id=<?php echo $event['event_id']; ?>&amp;crew_id=<?php echo $event['crew_id']; ?>"
+                                <!-- Rate button -->
+                                <a href="rate_event.php?event_id=<?php echo $event['event_id']; ?>&amp;crew_id=<?php echo $event['crew_id']; ?>"
                                     class="btn rate <?php echo $event['status'] === 'completed' ? '' : 'disabled'; ?>"
                                     <?php echo $event['status'] === 'completed' ? '' : 'onclick="return false;"'; ?>>
                                     Rate
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="7">You have not registered for any crew events yet.</td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table><br>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No crew event applications.</p>
+                <?php endif; ?>
+            </div>
+        </div>
 
-                <!-- Participant Events -->
-                <h3>Participant</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Event Name</th>
-                            <th>Organizer</th>
-                            <th>Application Date</th>
-                            <th>Application Status</th>
-                            <th>Event Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (!empty($events_participant)): ?>
-                        <?php $no = 1; ?>
-                        <?php foreach ($events_participant as $event): ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><?php echo htmlspecialchars($event['event_name']); ?></td>
-                                <td><?php echo htmlspecialchars($event['organizer']); ?></td>
-                                <td><?php echo date('Y-m-d', strtotime($event['created_at'])); ?></td>
-                                <td>
-                                    <?php 
-                                    if ($event['registration_status'] == 'registered') {
-                                        echo '<span class="status accepted">Registered</span>';
-                                    } elseif ($event['registration_status'] == 'cancelled') {
-                                        echo '<span class="status rejected">Cancelled</span>';
-                                    } 
-                                    ?>
-                                </td>
-                                <td>
-                                <?php 
-                                    if ($event['status'] == 'upcoming') {
-                                        echo '<span class="status pending">Upcoming</span>';
-                                    } elseif ($event['status'] == 'ongoing') {
-                                        echo '<span class="status interview">Ongoing</span>';
-                                    } elseif ($event['status'] == 'completed') {
-                                        echo '<span class="status applied">Completed</span>';
-                                    } elseif ($event['status'] == 'cancelled') {
-                                        echo '<span class="status rejected">Cancelled</span>';
-                                    }
+        <!-- PARTICIPANT EVENTS APPLICATION STATUS -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h2>Participant Events</h2>
+            </div>
+            
+            <div class="event-grid-participant">
+                <?php if (!empty($events_participant)): ?>
+                    <?php foreach ($events_participant as $event): ?>
+                        <div class="event-card-participant">
+                        <div class="event-card-icon">
+                            <?php if (!empty($event['club_photo'])): ?>
+                                <?php
+                                    // Convert the BLOB data to a base64-encoded string
+                                    $clubPhotoBase64 = base64_encode($event['club_photo']);
+                                    $clubPhotoSrc = 'data:image/jpeg;base64,' . $clubPhotoBase64; // Adjust MIME type if needed
                                 ?>
-                                </td>
-                                <td>
-                                <a href="viewparticipantapplication.php?event_id=<?php echo $event['event_id']; ?>" class="btn view">View</a>
-                                    <a href="editparticipantform.php?event_id=<?php echo $event['event_id']; ?>"
-                                    class="btn edit <?php echo ($event['registration_status'] != 'registered') ? 'disabled' : ''; ?>"
-                                    <?php echo ($event['registration_status'] != 'registered') ? 'onclick="return false;"' : ''; ?>>
-                                    Edit
-                                    </a>
-                                    <a href="deleteparticipantform.php?event_id=<?php echo $event['event_id']; ?>"
-                                    class="btn delete <?php echo ($event['registration_status'] != 'registered') ? 'disabled' : ''; ?>"
-                                    <?php echo ($event['registration_status'] != 'registered') ? 'onclick="return false;"' : 'onclick="return confirm(\'Are you sure you want to delete this application?\')"'; ?>>
-                                    Cancel
-                                    </a>
+                                <img src="<?php echo $clubPhotoSrc; ?>" alt="Club Photo" class="club-photo">
+                            <?php else: ?>
+                                <img src="default_club_photo.jpg" alt="Default Club Photo" class="club-photo">
+                            <?php endif; ?>
+                        </div>
 
-                                    <!-- Rate button enabled only if event status is 'completed' -->
-                                    <a href="rate_event.php?event_id=<?php echo $event['event_id']; ?>&amp;participant_id=<?php echo $event['participant_id']; ?>"
+                            <div class="event-card-details">
+                                <h3><?php echo htmlspecialchars($event['event_name']); ?></h3>
+                                <p><?php echo htmlspecialchars($event['organizer']); ?></p>
+                                <p>Registered on: <?php echo date('Y-m-d', strtotime($event['created_at'])); ?></p>
+                                <p class="event-status">Event Status: <span class="status-<?php echo strtolower($event['status']); ?>"><?php echo htmlspecialchars($event['status']); ?></span></p>
+                            </div>
+                            <span class="event-status-badge status-<?php echo strtolower($event['registration_status']); ?>">
+                                <?php echo htmlspecialchars($event['registration_status']); ?>
+                            </span>
+                            
+                            <!-- View Button -->
+                            <div class="event-card-actions">
+                                <a href="viewparticipantapplication.php?event_id=<?php echo $event['event_id']; ?>" class="btn view">View</a>
+
+                                <!-- Edit button -->
+                                <a href="editparticipantform.php?event_id=<?php echo $event['event_id']; ?>"
+                                    class="btn edit <?php echo ($event['registration_status'] === 'registered' && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'disabled'; ?>"
+                                    <?php echo ($event['registration_status'] === 'registered' && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'onclick="return false;"'; ?>>
+                                    Edit
+                                </a>
+
+                                <!-- Cancel button -->
+                                <a href="deleteparticipantform.php?event_id=<?php echo $event['event_id']; ?>"
+                                    class="btn delete <?php echo (in_array($event['registration_status'], ['registered']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? '' : 'disabled'; ?>"
+                                    <?php echo (in_array($event['registration_status'], ['registered']) && in_array($event['status'], ['upcoming', 'ongoing'])) ? 
+                                    'onclick="return confirm(\'Are you sure you want to cancel your registration?\')"' : 'onclick="return false;"'; ?>>
+                                    Cancel
+                                </a>
+
+                                <!-- Rate button -->
+                                <a href="rate_event.php?event_id=<?php echo $event['event_id']; ?>&amp;participant_id=<?php echo $event['participant_id']; ?>"
                                     class="btn rate <?php echo $event['status'] === 'completed' ? '' : 'disabled'; ?>"
                                     <?php echo $event['status'] === 'completed' ? '' : 'onclick="return false;"'; ?>>
                                     Rate
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="7">You have not registered for any events yet.</td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No participant event registrations.</p>
+                <?php endif; ?>
             </div>
+        </div>
 
-            <div class="event-status">
-                <h2>Feedbacks Made By Organizer</h2><br>
-
-                <!-- Crew Feedback Section -->
-                <h3>Events Joined As Crew</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Event Name</th>
-                            <th>Feedback</th>
-                            <th>Rating</th>
-                            <th>Feedback Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (!empty($feedback_organizer_crew)): ?>
-                        <?php $no = 1; ?>
-                        <?php foreach ($feedback_organizer_crew as $feedback): ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><?php echo htmlspecialchars($feedback['event_name']); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($feedback['feedback'])); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($feedback['rating'])); ?></td>
-                                <td><?php echo date('Y-m-d', strtotime($feedback['feedback_date'])); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="4">No feedback received from organizer yet.</td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table><br>
+        <!-- FEEDBACKS MADE BY YOU & ORGANIZER -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h2>Feedbacks Made By You & Organizer</h2>
             </div>
+        
+            <div class="event-grid-feedback">
+                <?php 
+                // Combine and sort feedbacks
+                    $all_feedbacks = array_merge (
+                    $feedback_organizer_crew, 
+                    $feedback_crew, 
+                    $feedback_participant
+                );
+            
+                // Sort by date, most recent first
+                    usort($all_feedbacks, function($a, $b) {
+                    return strtotime($b['feedback_date']) - strtotime($a['feedback_date']);
+                });
+            
+                // Limit to 3 most recent feedbacks
+                    $recent_feedbacks = array_slice($all_feedbacks, 0, 3);
+                ?>
+            
+            <?php foreach ($recent_feedbacks as $feedback): ?>
+                <div class="event-card-feedback">
+                    <div class="event-card-icon">
+                        <i class="fas fa-comment"></i>
+                    </div>
 
-            <div class="event-status">
-                <h2>Feedbacks Made By You</h2><br>
+                    <div class="event-card-details">
+                        <h3><?php echo htmlspecialchars($feedback['event_name']); ?></h3>
+                        <p><?php echo nl2br(htmlspecialchars(substr($feedback['feedback'], 0, 50) . '...')); ?></p>
+                        <p>Date: <?php echo date('Y-m-d', strtotime($feedback['feedback_date'])); ?></p>
+                    </div>
 
-                <!-- Crew Feedback Section -->
-                <h3>Events Joined As Crew</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Event Name</th>
-                            <th>Feedback</th>
-                            <th>Rating</th>
-                            <th>Feedback Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (!empty($feedback_crew)): ?>
-                        <?php $no = 1; ?>
-                        <?php foreach ($feedback_crew as $feedback): ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><?php echo htmlspecialchars($feedback['event_name']); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($feedback['feedback'])); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($feedback['rating'])); ?></td>
-                                <td><?php echo date('Y-m-d', strtotime($feedback['feedback_date'])); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5">No feedback provided as a crew yet.</td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table><br>
-
-                <!-- Participant Feedback Section -->
-                <h3>Events Joined As Participant</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Event Name</th>
-                            <th>Feedback</th>
-                            <th>Rating</th>
-                            <th>Feedback Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (!empty($feedback_participant)): ?>
-                        <?php $no = 1; ?>
-                        <?php foreach ($feedback_participant as $feedback): ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><?php echo htmlspecialchars($feedback['event_name']); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($feedback['feedback'])); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($feedback['rating'])); ?></td>
-                                <td><?php echo date('Y-m-d', strtotime($feedback['feedback_date'])); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5">No feedback provided as a participant yet.</td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="event-status">
-    <h2>Saved/Favorite Events</h2><br>
-
-    <h3>Events You Liked</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Event Name</th>
-                <th>Organizer</th>
-                <th>Description</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php if (!empty($favorite_events)): ?>
-            <?php $no = 1; ?>
-            <?php foreach ($favorite_events as $event): ?>
-                <tr>
-                    <td><?php echo $no++; ?></td>
-                    <td><?php echo htmlspecialchars($event['event_name']); ?></td>
-                    <td><?php echo nl2br(htmlspecialchars($event['organizer'])); ?></td>
-                    <td><?php echo nl2br(htmlspecialchars($event['description'])); ?></td>
-                    <td><?php echo date('Y-m-d', strtotime($event['start_date'])); ?></td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="5">No saved events.</td>
-            </tr>
-        <?php endif; ?>
-        </tbody>
-    </table><br>
+                    <span>
+                        <?php
+                        $rating = (int)$feedback['rating'];
+                        for ($i = 1; $i <= 5; $i++) {
+                            if ($i <= $rating) {
+                                echo '<i class="fas fa-star"></i>'; // Solid star for filled rating
+                            } else {
+                                echo '<i class="far fa-star"></i>'; // Empty star for unfilled rating
+                            }
+                        }
+                        ?>
+                    </span>
+                </div>
+            <?php endforeach;?>
+        </div>
+    </div>
 </div>
 
-        </section>
-    </main>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <!-- QUICK STATS -->
+        <div class="dashboard-card quick-stats">
+            <div class="dashboard-card-header">
+                <h2>Quick Stats</h2>
+            </div>
+                <div class="quick-stats-grid">
+                <div class="quick-stat-crew">
+                    <div class="quick-stat-number"><?php echo count($events_crews); ?></div>
+                    <div class="quick-stat-label">Crew Events</div>
+                </div>
+                <div class="quick-stat-participant">
+                    <div class="quick-stat-number"><?php echo count($events_participant); ?></div>
+                    <div class="quick-stat-label">Participant Events</div>
+                </div>
+                <div class="quick-stat-fave">
+                    <div class="quick-stat-number"><?php echo count($favorite_events); ?></div>
+                    <div class="quick-stat-label">Saved Events</div>
+                </div>
+                <div class="quick-stat-feedback">
+                    <div class="quick-stat-number"><?php echo count($feedback_crew) + count($feedback_participant); ?></div>
+                    <div class="quick-stat-label">Feedbacks</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAVED EVENTS -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h2>Saved Events</h2>          
+            </div>
+                
+            <div class="event-grid">
+                <?php if (!empty($favorite_events)): ?>
+                    <?php foreach ($favorite_events as $event): ?>
+                        <a href="participanthome.php?highlight_event_id=<?php echo $event['event_id']; ?>" class="event-link">
+                        <div class="event-card">
+                            <div class="event-card-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="event-card-details">
+                                <h3><?php echo htmlspecialchars($event['event_name']); ?></h3>
+                                <p><?php echo htmlspecialchars($event['organizer']); ?></p>
+                                <p><?php echo date('Y-m-d', strtotime($event['start_date'])); ?></p>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No saved events.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- PURCHASEs MERCHANDISE -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h2>Your Purchases</h2>
+            </div>
+        
+            <div class="event-grid">
+                <?php foreach ($recent_feedbacks as $feedback): ?>
+                    <div class="event-card">
+                        <div class="event-card-icon">
+                            <i class="fas fa-shopping-basket"></i>
+                        </div>
+                        <div class="event-card-details">
+                            <h3><?php echo htmlspecialchars($feedback['event_name']); ?></h3>
+                            <p><?php echo nl2br(htmlspecialchars(substr($feedback['feedback'], 0, 50) . '...')); ?></p>
+                            <p>Date: <?php echo date('Y-m-d', strtotime($feedback['feedback_date'])); ?></p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+         </div>
+    </div> 
+
+</section>
+</main>
 
 <!-- JavaScript to handle modal functionality -->
 <script>
-   
+ 
    /// Handle Profile Icon Click
    document.addEventListener("DOMContentLoaded", function () {
        const profileMenu = document.querySelector(".profile-menu");
