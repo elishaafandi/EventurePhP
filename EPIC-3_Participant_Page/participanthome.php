@@ -1,4 +1,13 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Include PHPMailer library
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
+
 // Include the config file to establish the database connection
 session_start();
 
@@ -13,7 +22,12 @@ if (!isset($_SESSION["ID"])) {
 $user_id = $_SESSION['ID'];
 
 // Build the base query
-$sql = "SELECT * FROM events WHERE event_status = 'approved' AND application = 'open'";
+$sql = "
+    SELECT e.*, c.club_photo 
+    FROM events e
+    JOIN clubs c ON e.club_id = c.club_id
+    WHERE e.event_status = 'approved' AND e.application = 'open'
+";
 
 // Fetch student details to autofill form
 $studentQuery = "SELECT * FROM students WHERE id = ?";
@@ -30,7 +44,6 @@ $clubStmt->execute();
 $clubResult = $clubStmt->get_result();
 $club = $clubResult->fetch_assoc();
 
-
 // Initialize variables for organizer and event_type from user input
 $organizer = isset($_GET['organizer']) ? trim($_GET['organizer']) : '';
 $event_type = isset($_GET['event_type']) ? trim($_GET['event_type']) : '0'; // Set event_type to '0' by default
@@ -39,80 +52,136 @@ $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : 'anytime'; // D
 $location = isset($_GET['location']) ? $_GET['location'] : ''; // Empty if no location selected
 $event_role = isset($_GET['event_role']) ? $_GET['event_role'] : ''; // Corrected to event_role
 $event_format = isset($_GET['event_format']) ? $_GET['event_format'] : ''; // Corrected to event_format
-$sort_by = isset($_GET['start_date']) ? $_GET['start_date'] : 'Latest';
+$sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'Latest';
 // Check if highlight_event_id is present in the URL
 $highlight_event_id = isset($_GET['highlight_event_id']) ? intval($_GET['highlight_event_id']) : null;
-
 
 // Check if filters are applied to modify the query
 $isFiltered = !empty($organizer) || ($event_type !== '0') || ($start_date !== 'anytime') || !empty($location) || !empty($event_role) || !empty($event_format) || ($sort_by !== 'Latest');
 
-if ($isFiltered) {
-    if (!empty($organizer)) {
-        $sql .= " AND organizer LIKE '%" . mysqli_real_escape_string($conn, $organizer) . "%'";
-    }
-    if ($event_type !== '0') {
-        $sql .= " AND event_type = '" . mysqli_real_escape_string($conn, $event_type) . "'";
-    }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_id'], $_POST['club_id'], $_POST['action'])) {
+    $event_id = intval($_POST['event_id']);
+    $club_id = intval($_POST['club_id']);
+    $action = $_POST['action'];
 
-      // Filter by start date
-    if ($start_date == 'last-week') {
-        $sql .= " AND start_date >= CURDATE() - INTERVAL 1 WEEK";
-    } elseif ($start_date == 'this-month') {
-        $sql .= " AND start_date >= CURDATE() - INTERVAL 1 MONTH";
-    } elseif ($start_date !== 'anytime') {
-        // If a specific start date is selected, filter by that date
-        $sql .= " AND start_date = '" . mysqli_real_escape_string($conn, $start_date) . "'";
-    }
+    if ($action === 'add-notification') {
+        // Add notification
+        $event_date = $_POST['event_date'];
+        $insertNotificationQuery = "INSERT IGNORE INTO notifications (id, event_id, club_id, event_date) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($insertNotificationQuery);
+        $stmt->bind_param("iiis", $user_id, $event_id, $club_id, $event_date);
+        $stmt->execute();
+        if ($stmt->affected_rows > 0) {
+            // Send Email Notification
+            $mail = new PHPMailer(true);
+        
+            try {
+                // Server settings
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com'; // Your SMTP server
+                $mail->SMTPAuth = true;
+                $mail->Username = 'elisha03@graduate.utm.my'; // Your email
+                $mail->Password = 'egmp jwea jxwn vove'; // Your email password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+        
+                // Check recipient email in session
+                if (isset($_SESSION['EMAIL']) && !empty($_SESSION['EMAIL'])) {
+                    $recipient_email = $_SESSION['EMAIL'];
+                } else {
+                    echo "<script>alert('Error: Recipient email not found in session.');</script>";
+                    exit;
+                }
 
-    if ($sort_by == 'Oldest') {
-        $sql .= " ORDER BY start_date ASC"; 
-    } elseif ($sort_by == 'Latest') {
-        $sql .= " ORDER BY start_date DESC"; 
-    } 
+                $eventQuery = "SELECT event_name FROM events WHERE event_id = ?";
+                $eventStmt = $conn->prepare($eventQuery);
+                $eventStmt->bind_param("i", $event_id);
+                $eventStmt->execute();
+                $eventResult = $eventStmt->get_result();
+                if ($eventResult->num_rows > 0) {
+                    $eventRow = $eventResult->fetch_assoc();
+                    $event_name = $eventRow['event_name']; // Get the event name
+                } else {
+                    echo "<script>alert('Error: Event not found.');</script>";
+                    exit;
+                }
+        
+                // Recipient
+                $mail->setFrom('elisha03@graduate.utm.my', 'Eventure Team');
+                $mail->addAddress($recipient_email);
+        
+                $logoPath = 'logo.png'; // Update this with the path to your logo file
+                $mail->addEmbeddedImage($logoPath, 'eventureLogo');
+        
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = 'New Event Notification';
+                $mail->Body = '
+                <div style="text-align: center; font-family: Arial, sans-serif;">
+                    <img src="cid:eventureLogo" alt="Eventure Logo" style="max-width: 150px; margin-bottom: 20px;">
+                    <h1 style="color: #800c12;">Event Reminder Notification</h1>
+                    <p>Dear Participant,</p>
+                    <p>You have a new notification for <strong>' . htmlspecialchars($event_name) . ' Event </strong>, scheduled to take place on <strong>' . htmlspecialchars($event_date) . '</strong>.</p>
+                    <p>Please note that you will receive a reminder notification at your calendar 5 days prior to the event date, unless you choose to modify the reminder settings.</p>
+                    <p>To manage or edit your reminder settings, please click the link below:</p>
+                    <p>
+                        <a href="http://localhost/eventure/participantcalendar.php?event_id=' . urlencode($event_id) . '" 
+                        style="display: inline-block; padding: 10px 20px; background-color: #800c12; color: white; text-decoration: none; border-radius: 5px;">
+                            Edit Reminder Settings
+                        </a>
+                    </p>
+                    <p>We hope this reminder helps you prepare for the event.</p>
+                    <br>
+                    <p>Best regards,</p>
+                    <p><strong>Eventure Team</strong></p>
+                </div>';
 
-    // Filter by location
-    if (!empty($location)) {
-        if ($location === 'on-campus') {
-            $sql .= " AND location LIKE '%UTM%'";
-        } elseif ($location === 'off-campus') {
-            $sql .= " AND location NOT LIKE '%UTM%'";
+                $mail->send();
+        
+                // Show success alert using JavaScript
+                echo "<script>alert('Notification was sent to your email.');</script>";
+            } catch (Exception $e) {
+                // Show error alert using JavaScript
+                echo "<script>alert('Error sending email: {$mail->ErrorInfo}');</script>";
+            }
+        } else {
+            // Show failure alert using JavaScript
+            echo "<script>alert('Failed to add notification. No rows affected.');</script>";
         }
-    }
+              
 
-   // Filter by event_role
-    if (!empty($event_role)) {
-        $sql .= " AND event_role = '" . mysqli_real_escape_string($conn, $event_role) . "'";
-    }
-
-// Filter by event_format
-    if (!empty($event_format)) {
-        $sql .= " AND event_format = '" . mysqli_real_escape_string($conn, $event_format) . "'";
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_id'], $_POST['club_id'])) {
-    // Ensure to sanitize and get the values
-    $event_id = intval($_POST['event_id']);  // Event ID
-    $club_id = intval($_POST['club_id']);    // Club ID (new field)       // Assuming user_id is stored in the session
-
-    $action = $_POST['action'];  // Action (add or remove)
-
-    if ($action === 'add') {
+    } elseif ($action === 'remove-notification') {
+        // Remove notification
+        $deleteNotificationQuery = "DELETE FROM notifications WHERE id = ? AND event_id = ?";
+        $stmt = $conn->prepare($deleteNotificationQuery);
+        $stmt->bind_param("ii", $user_id, $event_id);
+        $stmt->execute();
+    } elseif ($action === 'add-favorite') {
         // Add to favorites
-        $insertQuery = "INSERT IGNORE INTO favorites (id, event_id, club_id) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($insertQuery);
+        $insertFavoriteQuery = "INSERT IGNORE INTO favorites (id, event_id, club_id) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($insertFavoriteQuery);
         $stmt->bind_param("iii", $user_id, $event_id, $club_id);
         $stmt->execute();
-    } elseif ($action === 'remove') {
+    } elseif ($action === 'remove-favorite') {
         // Remove from favorites
-        $deleteQuery = "DELETE FROM favorites WHERE id = ? AND event_id = ? AND club_id = ?";
-        $stmt = $conn->prepare($deleteQuery);
-        $stmt->bind_param("iii", $user_id, $event_id, $club_id);
+        $deleteFavoriteQuery = "DELETE FROM favorites WHERE id = ? AND event_id = ?";
+        $stmt = $conn->prepare($deleteFavoriteQuery);
+        $stmt->bind_param("ii", $user_id, $event_id);
         $stmt->execute();
     }
 }
 
+// Fetch all notified event IDs for the user
+$notificationsQuery = "SELECT event_id FROM notifications WHERE id = ?";
+$stmt = $conn->prepare($notificationsQuery);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$notifiedEvents = [];
+while ($row = $result->fetch_assoc()) {
+    $notifiedEvents[] = $row['event_id'];
+}
 
 // Fetch all favorited event IDs for the user
 $favoritesQuery = "SELECT event_id FROM favorites WHERE id = ?";
@@ -136,6 +205,13 @@ if ($result) {
 } else {
     echo "Error: " . mysqli_error($conn);
 }
+
+/*$merchSql = "SELECT * FROM merch_organiser";
+$merchResult = $conn->query($merchSql);
+
+if (!$merchResult) {
+    echo "Error executing query: " . $conn->error;
+}*/
 
 // Close the database connection
 mysqli_close($conn);
@@ -162,6 +238,7 @@ mysqli_close($conn);
                 <a href="participantdashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantdashboard.php' ? 'active' : ''; ?>"></i>Dashboard</a>
                 <a href="participantcalendar.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantcalendar.php' ? 'active' : ''; ?>"></i>Calendar</a>
                 <a href="profilepage.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'profilepage.php' ? 'active' : ''; ?>"></i>User Profile</a>
+                <a href="participantmerchandise.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantmerchandise.php' ? 'active' : ''; ?>"></i>Merchandise</a>
             </nav>
         </div>
         <div class="nav-right">
@@ -226,8 +303,8 @@ mysqli_close($conn);
         <div class="filter-option">
             <label for="sort-by">Sort By</label>
             <select id="sort-by" name="sort_by">
-                <option value="Latest" <?php echo $sort_by == 'Latest' ? 'selected' : ''; ?>>Latest</option>
-                <option value="Oldest" <?php echo $sort_by == 'Oldest' ? 'selected' : ''; ?>>Oldest</option>
+                <option value="Latest" <?php echo $sort_by === 'Latest' ? 'selected' : ''; ?>>Latest</option>
+                <option value="Oldest" <?php echo $sort_by === 'Oldest' ? 'selected' : ''; ?>>Oldest</option>
             </select>
         </div>
         <div class="filter-option">
@@ -271,13 +348,73 @@ mysqli_close($conn);
                 <?php echo ($event_format === 'online') ? 'checked' : ''; ?>> Online
             </label>
         </div>
-        <button id="apply-filter-btn">Apply Filters</button>
+        <button id="apply-filter-btn" type="button">Apply Filters</button>
     </form>
     </aside>
 
     <!-- ADVERTISEMENTS -->
-    <aside class = "ads">
-        <h2> advertisements </h2>
+    <aside class="ads">
+    <h2>MERCHANDISE</h2>
+    <div class="scroll-indicator" id="scrollUp">&#9650;</div>
+    <div class="merch-container" id="merchContainer">
+        <?php 
+        if($merchResult && $merchResult->num_rows > 0): 
+            $counter = 0;
+        ?>
+            <?php while($row = $merchResult->fetch_assoc()): ?>
+                <!-- Wrap merch-card with an anchor tag -->
+                <a href="viewmerch.php?id=<?= urlencode($row['merch_org_id']) ?>" class="merch-link">
+                    <div class="merch-card" data-index="<?= $counter++ ?>">
+                        <div class="image-container">
+                            <?php if($row['item_image']): ?>
+                                <img class="main-image" 
+                                    src="data:image/jpeg;base64,<?= base64_encode($row['item_image']) ?>" 
+                                    alt="<?= htmlspecialchars($row['item_name']) ?>">
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="merch-info">
+                            <h3><?= htmlspecialchars($row['item_name']) ?></h3>
+                            <div class="type-size">
+                                <span><?= htmlspecialchars($row['item_type']) ?></span>
+                                <?php if($row['item_size'] != 'Not Applicable'): ?>
+                                    <span>• <?= htmlspecialchars($row['item_size']) ?></span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <p class="description"><?= htmlspecialchars($row['item_description']) ?></p>
+
+                        <div class="stock-price">
+                            <div class="stock-info">
+                                <?php
+                                $stockClass = $row['stock_quantity'] > 10 ? 'in-stock' : 
+                                            ($row['stock_quantity'] > 0 ? 'low-stock' : 'out-stock');
+                                $stockText = $row['stock_quantity'] > 10 ? 'In Stock' : 
+                                           ($row['stock_quantity'] > 0 ? 'Low Stock' : 'Out of Stock');
+                                ?>
+                                <span class="stock-badge <?= $stockClass ?>"><?= $stockText ?></span>
+                                <span>(<?= $row['stock_quantity'] ?> left)</span>
+                            </div>
+                            <span class="price">$<?= number_format($row['price'], 2) ?></span>
+                        </div>
+
+                        <div class="promotion-info">
+                            <span>Promo: <?= date('M d', strtotime($row['promotion_start'])) ?> - 
+                                        <?= date('M d', strtotime($row['promotion_end'])) ?></span>
+                            <div class="address" title="<?= htmlspecialchars($row['pickup_address']) ?>">
+                                📍 <?= substr($row['pickup_address'], 0, 30) . 
+                                        (strlen($row['pickup_address']) > 30 ? '...' : '') ?>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <p>No merchandise available at this time.</p>
+        <?php endif; ?>
+    </div>
+    <div class="scroll-indicator" id="scrollDown">&#9660;</div>
     </aside>
 
     <!-- EVENT LISTING -->                
@@ -298,7 +435,15 @@ mysqli_close($conn);
         <?php endif; ?>
 
         <?php foreach ($events as $event): ?>
-            <div class="event-card" data-event-id="<?php echo $event['event_id']; ?>" style="background-image: url('data:image/jpeg;base64,<?php echo base64_encode($event['event_photo']); ?>');">
+            <div class="event-card" 
+            data-event-id="<?php echo $event['event_id']; ?>" 
+            data-start-date="<?php echo $event['start_date']; ?>" 
+            data-format="<?php echo htmlspecialchars($event['event_format']); ?>"
+            data-location="<?php echo htmlspecialchars($event['location']); ?>"
+            data-start-date="<?php echo $event['start_date']; ?>"
+            data-end-date="<?php echo $event['end_date']; ?>"
+            <?php echo ($event['event_status'] === 'completed') ? 'data-completed="true"' : ''; ?>
+            style="background-image: url('data:image/jpeg;base64,<?php echo base64_encode($event['event_photo']); ?>');">
                 <div class="event-overlay"></div> 
                 <div class="event-header">
                     <div class="event-title-organizer">
@@ -307,12 +452,21 @@ mysqli_close($conn);
                     </div>
 
                     <div class="event-icons">
-                        <button class="notification-button"><i class="fas fa-bell"></i></button>
                         <form method="POST" action="">
                             <input type="hidden" name="event_id" value="<?php echo $event['event_id']; ?>">
                             <input type="hidden" name="club_id" value="<?php echo $event['club_id']; ?>">
-                            <input type="hidden" name="action" value="<?php echo in_array($event['event_id'], $favoritedEvents) ? 'remove' : 'add'; ?>">
-                            <button type="submit" class="heart-button <?php echo in_array($event['event_id'], $favoritedEvents) ? 'red' : 'grey'; ?>">
+                            <input type="hidden" name="event_date" value="<?php echo $event['start_date']; ?>">
+                            <input type="hidden" name="action" value="<?php echo in_array($event['event_id'], $notifiedEvents) ? 'remove-notification' : 'add-notification'; ?>">
+                            <button type="submit" class="notification-button <?php echo in_array($event['event_id'], $notifiedEvents) ? 'yellow' : 'white'; ?>">
+                                <i class="fas fa-bell"></i>
+                            </button>
+                        </form>
+
+                        <form method="POST" action="">
+                            <input type="hidden" name="event_id" value="<?php echo $event['event_id']; ?>">
+                            <input type="hidden" name="club_id" value="<?php echo $event['club_id']; ?>">
+                            <input type="hidden" name="action" value="<?php echo in_array($event['event_id'], $favoritedEvents) ? 'remove-favorite' : 'add-favorite'; ?>">
+                            <button type="submit" class="heart-button <?php echo in_array($event['event_id'], $favoritedEvents) ? 'red' : 'white'; ?>">
                                 <i class="fa fa-heart"></i>
                             </button>
                         </form>
@@ -324,15 +478,23 @@ mysqli_close($conn);
                 <div class="event-footer">
                     <span class="event-location"><?php echo htmlspecialchars($event['location']); ?></span>
                     <span class="event-role"><?php echo htmlspecialchars($event['event_role']); ?></span>
-                    <span class="event-date"> <?php echo date('d-m-y', strtotime($event['start_date'])); ?></span>
+                    <span class="event-date"> <?php echo date('Y-m-d', strtotime($event['start_date'])); ?></span>
                     <div class="event-buttons">
+                        <?php
+                        // Get the current date
+                        $currentDate = date('Y-m-d');
+
+                        // Check if the event has already passed
+                        $isEventPast = (strtotime($event['end_date']) < strtotime($currentDate));
+                        ?>
                         <button class="find-out-more-button" 
                             onclick="window.location.href='findoutmore.php?event_id=<?php echo urlencode($event['event_id']); ?>'">
                             Find Out More
                         </button>
                         <button class="join-button" 
                             data-role="<?php echo htmlspecialchars($event['event_role']); ?>" 
-                            data-event-id="<?php echo htmlspecialchars($event['event_id']); ?>">
+                            data-event-id="<?php echo htmlspecialchars($event['event_id']); ?>"
+                            <?php echo $isEventPast ? 'disabled style="cursor: not-allowed; opacity: 0.6;"' : ''; ?>>
                             Join Event
                         </button>
                     </div>
@@ -410,76 +572,182 @@ document.getElementById("close-filter-btn").addEventListener("click", () => {
     document.getElementById("filter-drawer").classList.remove("open");
 });
 
+// Get filter drawer elements
 const filterDrawer = document.getElementById("filter-drawer");
-const openBtn = document.getElementById("open-filter-btn");
 const closeBtn = document.getElementById("close-filter-btn");
+const sortBySelect = document.getElementById("sort-by");
 
-    document.getElementById("filter-btn").addEventListener("click", () => {
+// Initialize results count on page load
+document.addEventListener('DOMContentLoaded', () => {
+    updateResultsCount(document.querySelectorAll(".event-card").length, false);
+});
+
+// Handle apply filter button click
+document.getElementById("apply-filter-btn").addEventListener("click", () => {
+    // Get all filter values
     const datePost = document.getElementById("date-post").value;
-
-    // Get selected location filters (can have multiple values)
     const locationFilters = Array.from(
-        document.querySelectorAll(".location-filter:checked")
-    ).map((checkbox) => checkbox.value);
+        document.querySelectorAll('input[name="location"]:checked')
+    ).map(checkbox => checkbox.value);
+    
+    const eventRole = document.querySelector('input[name="event_role"]:checked')?.value || '';
+    const eventFormat = document.querySelector('input[name="event_format"]:checked')?.value || '';
+    
+    // Get sort option
+    const selectedSortOption = sortBySelect.value;
+    
+    // Apply filters and sorting
+    applyFilters(datePost, locationFilters, eventRole, eventFormat, selectedSortOption);
+    
+    // Close the drawer after applying filters
+    filterDrawer.classList.remove("open");
+});
 
-    // Get selected role filters (can have multiple values)
-    const roleFilters = Array.from(
-        document.querySelectorAll(".role-filter:checked")
-    ).map((checkbox) => checkbox.value);
+// Handle sort selection change
+sortBySelect.addEventListener("change", () => {
+    const selectedSortOption = sortBySelect.value;
+    
+    // Get current filter values
+    const datePost = document.getElementById("date-post").value;
+    const locationFilters = Array.from(
+        document.querySelectorAll('input[name="location"]:checked')
+    ).map(checkbox => checkbox.value);
+    
+    const eventRole = document.querySelector('input[name="event_role"]:checked')?.value || '';
+    const eventFormat = document.querySelector('input[name="event_format"]:checked')?.value || '';
+    
+    // Apply filters and sorting
+    applyFilters(datePost, locationFilters, eventRole, eventFormat, selectedSortOption);
+});
 
-    // Get selected format filters (can have multiple values)
-    const formatFilters = Array.from(
-        document.querySelectorAll(".format-filter:checked")
-    ).map((checkbox) => checkbox.value);
-
-    // Call a function to apply filters
-    applyFilters(datePost, locationFilters, roleFilters, formatFilters);
-    });
-
-function applyFilters(datePost, locationFilters, roleFilters, formatFilters) {
-    // Assuming events are dynamically loaded with a specific class or container
-    const events = document.querySelectorAll(".event-card");
-
-    events.forEach((event) => {
-        // Read attributes or data tags from events
-        const eventDate = event.getAttribute("data-date");
-        const eventLocation = event.getAttribute("data-location"); // e.g., "on-campus, off-campus"
-        const eventRole = event.getAttribute("data-role");
-        const eventFormat = event.getAttribute("data-event-format");
-
-        // Logic to determine if event should be visible
-        const matchesDate =
-            datePost === "anytime" || eventDate === datePost;
-
-        // Check if event matches selected location filters (handle multiple locations)
-        const matchesLocation =
-            locationFilters.length === 0 || locationFilters.some(location => eventLocation.includes(location));
-
-        // Check if event matches selected role filters (handle multiple roles)
-        const matchesRole =
-            roleFilters.length === 0 || roleFilters.some(role => eventRole.includes(role));
-
-        const matchesFormat =
-            formatFilters.length === 0 || formatFilters.includes(eventFormat);
-
-        // Show or hide based on matches
-        if (matchesDate && matchesLocation && matchesRole && matchesFormat) {
-            event.style.display = "block";
-        } else {
-            event.style.display = "none";
+function updateResultsCount(count, isFiltered) {
+    // Create or get the results count element
+    let resultsElement = document.querySelector('.results-count');
+    if (!resultsElement) {
+        resultsElement = document.createElement('p');
+        resultsElement.className = 'results-count';
+        // Insert after the status section
+        const statusSection = document.querySelector('.status-section');
+        if (statusSection) {
+            statusSection.insertAdjacentElement('afterend', resultsElement);
         }
-    });
+    }
+    
+    // Update the text based on whether filters are applied
+    if (isFiltered) {
+        resultsElement.textContent = `${count} results found after filtering`;
+    } else {
+        resultsElement.textContent = `Showing all ${count} results`;
+    }
 }
 
-// Clear all filters
-document.querySelector(".clear-all").addEventListener("click", () => {
+function applyFilters(datePost, locationFilters, eventRole, eventFormat, selectedSortOption) {
+    const events = document.querySelectorAll(".event-card");
+    const eventList = document.querySelector('.event-list');
+    
+    // Convert events to array for filtering and sorting
+    let filteredEvents = Array.from(events);
+    
+    // Track if any filters are applied
+    const hasFilters = datePost !== 'anytime' || 
+                      locationFilters.length > 0 || 
+                      eventRole !== '' || 
+                      eventFormat !== '';
+    
+    // Apply date filter
+    if (datePost !== 'anytime') {
+        const currentDate = new Date();
+        filteredEvents = filteredEvents.filter(event => {
+            const eventDate = new Date(event.dataset.startDate);
+            if (datePost === 'last-week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return eventDate >= weekAgo && eventDate <= currentDate;
+            } else if (datePost === 'this-month') {
+                const monthAgo = new Date();
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                return eventDate >= monthAgo && eventDate <= currentDate;
+            }
+            return true;
+        });
+    }
+    
+    // Apply location filter
+    if (locationFilters.length > 0) {
+        filteredEvents = filteredEvents.filter(event => {
+            const location = event.querySelector('.event-location').textContent.toLowerCase();
+            return locationFilters.some(filter => {
+                if (filter === 'on-campus') return location.includes('utm');
+                if (filter === 'off-campus') return !location.includes('utm');
+                return false;
+            });
+        });
+    }
+    
+    // Apply role filter
+    if (eventRole) {
+        filteredEvents = filteredEvents.filter(event => {
+            const role = event.querySelector('.event-role').textContent.toLowerCase();
+            return role === eventRole.toLowerCase();
+        });
+    }
+    
+    // Apply format filter
+    if (eventFormat) {
+        filteredEvents = filteredEvents.filter(event => {
+            const format = event.getAttribute('data-format')?.toLowerCase();
+            return format === eventFormat.toLowerCase();
+        });
+    }
+    
+    // Sort filtered events
+    if (selectedSortOption) {
+        filteredEvents.sort((a, b) => {
+            const dateA = new Date(a.dataset.startDate);
+            const dateB = new Date(b.dataset.startDate);
+            
+            return selectedSortOption === 'Latest' ? 
+                dateB - dateA : // Latest first
+                dateA - dateB;  // Oldest first
+        });
+    }
+    
+    // Hide all events first
+    events.forEach(event => event.style.display = 'none');
+    
+    // Show filtered and sorted events
+    filteredEvents.forEach(event => {
+        event.style.display = 'block';
+        eventList.appendChild(event); // Move to maintain sort order
+    });
+    
+    // Update results count
+    updateResultsCount(filteredEvents.length, hasFilters);
+}
+
+// Handle clear filters
+document.querySelector('.clear-button')?.addEventListener('click', () => {
+    // Reset all form inputs
     document.getElementById("date-post").value = "anytime";
-    document.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
         checkbox.checked = false;
     });
-
-    // Reset filters to show all events
-    applyFilters("anytime", [], [], []);
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.checked = false;
+    });
+    
+    // Reset sort selection
+    sortBySelect.value = 'Latest';
+    
+    // Show all events in default order
+    const events = document.querySelectorAll(".event-card");
+    events.forEach(event => event.style.display = 'block');
+    
+    // Update results count to show total
+    updateResultsCount(events.length, false);
+    
+    // Refresh the page
+    window.location.href = 'participanthome.php';
 });
 
 function filterEventsByStatus(status, clickedButton) {
@@ -488,30 +756,134 @@ function filterEventsByStatus(status, clickedButton) {
 
     // Update button states
     const buttons = document.querySelectorAll(".status-btn");
-    buttons.forEach(btn => btn.classList.remove("active")); // Remove active class
-    clickedButton.classList.add("active"); // Add active class to clicked button
+    buttons.forEach(btn => btn.classList.remove("active"));
+    clickedButton.classList.add("active");
 
     events.forEach(event => {
-        const eventDate = new Date(event.getAttribute("data-date"));
+        // Get the event date from the span element with class event-date
+        const dateSpan = event.querySelector('.event-date');
+        const startDateStr = dateSpan.textContent.trim();
+        const startDate = new Date(startDateStr);
+        
+        // Calculate end date (assuming it's stored somewhere, if not you'll need to add it)
+        // For now, let's assume end date is the same as start date
+        const endDate = new Date(startDateStr);
+        endDate.setHours(23, 59, 59); // Set to end of day
+
         let eventStatus = "";
 
-        if (eventDate.toDateString() === currentDate.toDateString()) {
-            eventStatus = "ongoing";
-        } else if (eventDate > currentDate) {
+        // Determine event status
+        if (currentDate < startDate) {
             eventStatus = "upcoming";
-        } else if (eventDate < currentDate) {
+        } else if (currentDate > endDate) {
             eventStatus = "past";
+        } else if (currentDate >= startDate && currentDate <= endDate) {
+            eventStatus = "ongoing";
         }
 
-        // Show or hide events based on status
-        if (eventStatus === status || status === "all") {
+        // Handle specific status case for 'completed' if needed
+        if (status === "completed" && event.hasAttribute("data-completed")) {
+            event.style.display = "block";
+        } else if (status === "all") {
+            event.style.display = "block";
+        } else if (eventStatus === status) {
             event.style.display = "block";
         } else {
             event.style.display = "none";
         }
     });
+
+    // Update visible event count
+    const visibleEvents = document.querySelectorAll(".event-card[style='display: block']").length;
+    const resultsElement = document.querySelector('.event-list > p');
+    if (resultsElement) {
+        resultsElement.textContent = `${visibleEvents} results found`;
+    }
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    const merchContainer = document.getElementById("merchContainer");
+    const scrollUp = document.getElementById("scrollUp");
+    const scrollDown = document.getElementById("scrollDown");
+    const cards = document.querySelectorAll(".merch-card");
+    
+    if (cards.length === 0) return;
+
+    let currentIndex = 0;
+    let isAnimating = false;
+    let autoRotateInterval;
+
+    // Show initial card
+    cards[0].classList.add('active');
+
+    function showCard(index) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        // Remove all classes first
+        cards.forEach(card => {
+            card.classList.remove('active', 'prev');
+        });
+
+        // Get current and next card
+        const currentCard = cards[currentIndex];
+        const nextCard = cards[index];
+
+        // Add transition classes
+        currentCard.classList.add('prev');
+        nextCard.classList.add('active');
+
+        // Update current index
+        currentIndex = index;
+
+        // Reset animation flag after transition
+        setTimeout(() => {
+            isAnimating = false;
+            updateScrollIndicators();
+        }, 500);
+    }
+
+    function nextCard() {
+        const nextIndex = (currentIndex + 1) % cards.length;
+        showCard(nextIndex);
+    }
+
+    function prevCard() {
+        const prevIndex = (currentIndex - 1 + cards.length) % cards.length;
+        showCard(prevIndex);
+    }
+
+    function updateScrollIndicators() {
+        scrollUp.style.display = currentIndex > 0 ? "flex" : "none";
+        scrollDown.style.display = currentIndex < cards.length - 1 ? "flex" : "none";
+    }
+
+    // Click handlers
+    scrollUp.addEventListener("click", prevCard);
+    scrollDown.addEventListener("click", nextCard);
+
+    // Auto-rotation
+    function startAutoRotate() {
+        if (!autoRotateInterval) {
+            autoRotateInterval = setInterval(nextCard, 5000);
+        }
+    }
+
+    function stopAutoRotate() {
+        if (autoRotateInterval) {
+            clearInterval(autoRotateInterval);
+            autoRotateInterval = null;
+        }
+    }
+
+    // Mouse interactions
+    merchContainer.addEventListener("mouseenter", stopAutoRotate);
+    merchContainer.addEventListener("mouseleave", startAutoRotate);
+
+    // Initialize
+    updateScrollIndicators();
+    startAutoRotate();
+});
 
 
 </script>

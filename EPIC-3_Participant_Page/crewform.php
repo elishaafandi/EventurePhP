@@ -1,5 +1,14 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Include PHPMailer library
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
 include 'config.php';
+
 session_start();
 
 if (!isset($_SESSION['ID'])) {
@@ -25,7 +34,24 @@ $studentStmt->execute();
 $studentResult = $studentStmt->get_result();
 $student = $studentResult->fetch_assoc();
 
+// Query to fetch the crew_role for the specific event
+$event_id = $_GET['event_id'];  // Assuming the event ID is passed as a query parameter
+$query = "SELECT crew_role FROM events WHERE event_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $event_id); // Bind the event_id
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch the crew_role value
+$row = $result->fetch_assoc();
+$crew_roles = $row['crew_role'];  // This will contain the comma-separated roles
+$stmt->close();
+
+// Split the roles into an array based on the commas
+$rolesArray = explode(",", $crew_roles);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
     
     $past_experience = $_POST['past_experience'];
     $role = $_POST['role'];
@@ -57,7 +83,77 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $updateSlotsStmt->bind_param("i", $event_id);
 
             if ($updateSlotsStmt->execute()) {
+                // Send Email Notification
+            $mail = new PHPMailer(true);
+        
+            try {
+                // Server settings
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com'; // Your SMTP server
+                $mail->SMTPAuth = true;
+                $mail->Username = 'elisha03@graduate.utm.my'; // Your email
+                $mail->Password = 'egmp jwea jxwn vove'; // Your email password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+        
+                // Check recipient email in session
+                if (isset($_SESSION['EMAIL']) && !empty($_SESSION['EMAIL'])) {
+                    $recipient_email = $_SESSION['EMAIL'];
+                } else {
+                    echo "<script>alert('Error: Recipient email not found in session.');</script>";
+                    exit;
+                }
+
+                $eventQuery = "SELECT event_name FROM events WHERE event_id = ?";
+                $eventStmt = $conn->prepare($eventQuery);
+                $eventStmt->bind_param("i", $event_id);
+                $eventStmt->execute();
+                $eventResult = $eventStmt->get_result();
+                if ($eventResult->num_rows > 0) {
+                    $eventRow = $eventResult->fetch_assoc();
+                    $event_name = $eventRow['event_name']; // Get the event name
+                } else {
+                    echo "<script>alert('Error: Event not found.');</script>";
+                    exit;
+                }
+        
+                // Recipient
+                $mail->setFrom('elisha03@graduate.utm.my', 'Eventure Team');
+                $mail->addAddress($recipient_email);
+        
+                $logoPath = 'logo.png'; // Update this with the path to your logo file
+                $mail->addEmbeddedImage($logoPath, 'eventureLogo');
+        
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = 'New Event Registration';
+                $mail->Body = '
+                <div style="text-align: center; font-family: Arial, sans-serif;">
+                    <img src="cid:eventureLogo" alt="Eventure Logo" style="max-width: 150px; margin-bottom: 20px;">
+                    <h1 style="color: #800c12;">Event Registration Confirmation</h1>
+                    <p>Dear Participant,</p>
+                    <p>You have successfully registered for the event <strong>' . htmlspecialchars($event_name) . '</strong>.</p>
+                    <p>You can manage your registration and other details by visiting your dashboard below:</p>
+                    <p>
+                        <a href="http://localhost/eventure/participantdashboard.php?event_id=' . urlencode($event_id) . '" 
+                        style="display: inline-block; padding: 10px 20px; background-color: #800c12; color: white; text-decoration: none; border-radius: 5px;">
+                            View Dashboard
+                        </a>
+                    </p>
+                    <p>We look forward to seeing you at the event!</p>
+                    <p>Best regards,<br>Eventure Team</p>";
+                </div>';
+
+
+                $mail->send();
+        
+                // Show success alert using JavaScript
                 echo "<script>alert('Registration successful! Available slots updated.'); window.location.href='participanthome.php';</script>";
+            } catch (Exception $e) {
+                // Show error alert using JavaScript
+                echo "<script>alert('Error sending email: {$mail->ErrorInfo}');</script>";
+            }
+            
             } else {
                 echo "<script>alert('Registration successful, but failed to update available slots.');</script>";
             }
@@ -74,7 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crew Recruitment Form</title>
+    <title>www.eventureutm.com</title>
     <link rel="stylesheet" href="crewform.css">
 </head>
 <body>
@@ -186,21 +282,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="past_experience">Please list your past experiences in previous programs (e.g., OPERA23 - Technical Unit)</label>
                     <textarea id="past_experience" name="past_experience" required></textarea>
                 </div>
-               
+
                 <div class="form-group">
                     <label for="role">Choose your desired role</label>
                     <select id="role" name="role" required>
                         <option value="">Select a role</option>
-                        <option value="Protocol">Protocol</option>
-                        <option value="Technical">Technical</option>
-                        <option value="Gift">Gift</option>
-                        <option value="Food">Food</option>
-                        <option value="Special Task">Special Task</option>
-                        <option value="Multimedia">Multimedia</option>
-                        <option value="Sponsorship">Sponsorship</option>
-                        <option value="Documentation">Documentation</option>
-                        <option value="Transporation">Transportation</option>
-                        <option value="Activity">Activity</option>
+                        <?php
+                        // Loop through the roles and display them as options
+                        foreach ($rolesArray as $role) {
+                            echo "<option value=\"" . htmlspecialchars($role) . "\">" . htmlspecialchars($role) . "</option>";
+                        }
+                        ?>
                     </select>
                 </div>
 

@@ -352,3 +352,9 @@ img {
 .profile-menu.open .dropdown-menu {
     display: block;
 }
+
+.qr-code-image {
+    object-fit: cover;
+    border: 2px solid #ccc; /* Optional: Adds a border for better visibility */
+    border-radius: 8px; /* Optional: Slightly rounded corners */
+}
