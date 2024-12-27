@@ -1,0 +1,137 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9; /* Light gray for background */
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 50%;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #fff;
+    border: 3px solid #891a1a; /* Maroon border */
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    text-align: center;
+    color: #891a1a; /* Maroon color */
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    color: #555; /* Neutral color for readability */
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+input[type="datetime-local"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: #fefefe;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, 
+select:focus {
+    border-color: #891a1a; /* Maroon focus border */
+    outline: none;
+    box-shadow: 0 0 4px rgba(137, 26, 26, 0.4); /* Maroon glow */
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #891a1a; /* Maroon button */
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #a63434; /* Slightly lighter maroon */
+    transform: scale(1.05); /* Slight zoom */
+}
+
+button:active {
+    background-color: #7b1212; /* Darker maroon for click */
+    transform: scale(1); /* Reset size */
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #891a1a; /* Maroon text */
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #a63434; /* Slightly lighter maroon */
+}
+
+/* Meeting Link Visibility */
+#meeting_link_field {
+    display: none;
+}
+
+/* Read-Only Fields */
+input[readonly] {
+    background-color: #f5f5f5;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* Form Container Decorative Touch */
+.container h1::after {
+    content: "";
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: #891a1a;
+    margin: 8px auto;
+    border-radius: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
