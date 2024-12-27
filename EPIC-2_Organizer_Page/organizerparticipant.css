@@ -158,17 +158,47 @@ header h1 {
 
 /* Main Content Styling */
 .main-content {
-    margin-left: 220px; 
-    margin-top: 10px; 
-    padding: 20px;
+    margin-left: 220px;
+    margin-top: 10px;
+    padding: 30px;
     width: calc(100% - 220px);
 }
 
-.main-content h3 {
-    margin-top: 20px;  /* Add space above the header */
-    margin-bottom: 20px; /* Add space below the header */
+/* Event Selection Styling */
+.main-content form {
+    margin-bottom: 30px;
 }
 
+.main-content select {
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    transition: border-color 0.3s ease;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.main-content select:hover {
+    border-color: #891a1a;
+}
+
+.main-content select:focus {
+    outline: none;
+    border-color: #891a1a;
+    box-shadow: 0 0 0 3px rgba(137, 26, 26, 0.1);
+}
+
+.main-content h3 {
+    color: #891a1a;
+    font-size: 22px;
+    margin: 40px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #891a1a;
+    position: relative;
+}
 
 header {
     display: flex;
@@ -188,14 +218,38 @@ header {
     cursor: pointer;
 }
 
+/* Event Info Card Styling */
 .event-info {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: #9b252b;
+    margin: 30px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #9b252b, #891a1a);
     color: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    position: relative;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.event-info h2 {
+    font-size: 24px;
+    color: #ffcb63;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(243, 214, 76, 0.3);
+    padding-bottom: 10px;
+}
+
+.event-info p {
+    margin: 12px 0;
+    font-size: 16px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+}
+
+.event-info p:before {
+    content: '•';
+    color: #fcf6f6;
+    margin-right: 10px;
+    font-size: 20px;
 }
 
 .event-header {
@@ -256,35 +310,30 @@ header {
 /* Participant Table Styles */
 .participant-table {
     width: 100%;
-    margin-top: 30px;
-    border-collapse: collapse;
-    background-color: white;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.participant-table th, .participant-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
+    margin: 20px 0 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .participant-table th {
-    background-color: #891a1a;
+    background: linear-gradient(135deg, #891a1a, #9b252b);
     color: white;
+    padding: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
 }
 
 .participant-table td {
-    vertical-align: middle;
+    padding: 15px;
+    border: 1px solid #eee;
+    font-size: 15px;
 }
 
-.participant-table input[type="checkbox"] {
-    transform: scale(1.2);
-    cursor: pointer;
-}
-
-.participant-table tr:hover {
-    background-color: #f9f9f9;
+.participant-table tr:nth-child(even) {
+    background-color: #f8f9fa;
 }
 
 .action-container {
@@ -316,6 +365,58 @@ header {
 
 .absent-btn:hover {
     background-color: #9d0c0c;
+}
+
+.filter-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-container select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-left: 10px;
+    min-width: 120px;
+}
+
+.filter-container label {
+    white-space: nowrap;
+}
+
+/* Checkbox Styling */
+.participant-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #891a1a;
+    cursor: pointer;
+    position: center;
+    transition: all 0.2s ease;
+}
+
+.participant-table input[type="checkbox"]:checked {
+    background-color: #891a1a;
+    border-color: #891a1a;
+}
+
+/* Status Colors */
+.status-present {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.status-absent {
+    color: #dc3545;
+    font-weight: 600;
 }
 
 

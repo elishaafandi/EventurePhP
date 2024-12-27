@@ -81,35 +81,41 @@ if ($selected_club_id) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo-container">
-            <a href="organizerhome.php" class="logo">EVENTURE</a>
+<header>
+    <h1>Events Created</h1>
+    <div class="header-left">
+        <div class="nav-right">
+            <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
+            <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
+            <a href="profilepage.php" class="profile-icon"><i class="fas fa-user-circle"></i></a>
         </div>
-        <ul>
-            <li><a href="organizerhome.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerhome.php' ? 'active' : ''; ?>"><i class="fas fa-home-alt"></i> Dashboard</a></li>
-            <li><a href="organizerevent.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerevent.php' ? 'active' : ''; ?>"><i class="fas fa-calendar-alt"></i> Event Hosted</a></li>
-            <li><a href="organizerparticipant.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerparticipant.php' ? 'active' : ''; ?>"><i class="fas fa-user-friends"></i> Participant Listing</a></li>
-            <li><a href="organizercrew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizercrew.php' ? 'active' : ''; ?>"><i class="fas fa-users"></i> Crew Listing</a></li>
-            <li><a href="organizerreport.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerreport.php' ? 'active' : ''; ?>"><i class="fas fa-chart-line"></i> Reports</a></li>
-            <li><a href="organizerfeedback.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerfeedback.php' ? 'active' : ''; ?>"><i class="fas fa-star"></i> Feedback</a></li>
-        </ul>
-        <ul style="margin-top: 60px;">
-            <li><a href="organizersettings.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizersettings.php' ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Settings</a></li>
-            <li><a href="logout.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'logout.php' ? 'active' : ''; ?>"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </aside>
+    </div>
+</header>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <header>
-            <h1>Events Created</h1>
-            <button class="participant-site">PARTICIPANT SITE</button>
-            <button class="organizer-site">ORGANIZER SITE</button>
-            <span class="notification-bell">🔔</span>
-        </header>
+<main>
+<aside class="sidebar">
+    <!-- Sidebar Content -->
+    <div class="logo-container">
+        <a href="organizerhome.php" class="logo">EVENTURE</a>
+    </div>
+    <ul>
+        <li><a href="organizerhome.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerhome.php' ? 'active' : ''; ?>"><i class="fas fa-home-alt"></i> Dashboard</a></li>
+        <li><a href="organizerevent.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerevent.php' ? 'active' : ''; ?>"><i class="fas fa-calendar-alt"></i>Event Hosted</a></li>
+        <li><a href="organizerparticipant.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerparticipant.php' ? 'active' : ''; ?>"><i class="fas fa-user-friends"></i>Participant Listing</a></li>
+        <li><a href="organizercrew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizercrew.php' ? 'active' : ''; ?>"><i class="fas fa-users"></i>Crew Listing</a></li>
+        <li><a href="organizerreport.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerreport.php' ? 'active' : ''; ?>"><i class="fas fa-chart-line"></i>Reports</a></li>
+        <li><a href="rate_crew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerfeedback.php' ? 'active' : ''; ?>"><i class="fas fa-star"></i>Feedback</a></li>
+        <li><a href="organizerclubmembership.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerclub membership.php' ? 'active' : ''; ?>"><i class="fas fa-user-plus"></i> Club Membership</a></li>
+    </ul>
+    <ul style="margin-top: 60px;">
+        <li><a href="organizersettings.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizersettings.php' ? 'active' : ''; ?>"><i class="fas fa-cog"></i>Settings</a></li>
+        <li><a href="logout.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'logout.php' ? 'active' : ''; ?>"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+</aside>
 
-        <div class="search-bar">
+<!-- Main Content -->
+<div class="main-content">
+<div class="search-bar">
             <input type="text" placeholder="Search event name..." />
         </div>
 
@@ -132,19 +138,21 @@ if ($selected_club_id) {
         <?php foreach ($events as $event): ?>
             <div class="event-row">
                 <div class="event-card" data-status="<?php echo htmlspecialchars($event["status"]); ?>"> 
-                    <!-- Event Photo -->
-                    <?php if (!empty($event["event_photo"])): ?>
-                        <img src="data:image/jpeg;base64,<?php echo base64_encode($event["event_photo"]); ?>" alt="Event Photo" class="event-photo">
-                    <?php endif; ?>
+                <div class="event-card" data-event-id="<?php echo $event['event_id']; ?>" style="background-image: url('data:image/jpeg;base64,<?php echo base64_encode($event['event_photo']); ?>');">
+                <div class="event-overlay"></div> 
 
                     <!-- Event Details -->
                     <div class="event-info">
                         <h2><?php echo htmlspecialchars($event["event_name"]); ?></h2>
                         <p><?php echo htmlspecialchars($event["description"]); ?></p>
-                        <p>Location: <?php echo htmlspecialchars($event["location"]); ?></p>
-                        <p>Type: <?php echo htmlspecialchars($event["event_type"]); ?>, Format: <?php echo htmlspecialchars($event["event_format"]); ?></p>
-                        <p>Slots: <?php echo htmlspecialchars($event["available_slots"]); ?> / <?php echo htmlspecialchars($event["total_slots"]); ?></p>
-                        <p>Status: <?php echo htmlspecialchars($event["status"]); ?></p>
+                        <p>Type: <?php echo htmlspecialchars($event["event_type"]); ?></p>
+                        <p>Format: <?php echo htmlspecialchars($event["event_format"]); ?></p>
+
+                    <div class="event-info-footer">
+                        <p><?php echo htmlspecialchars($event["location"]); ?></p>
+                        <p><?php echo htmlspecialchars($event["status"]); ?></p>
+                        <p><?php echo htmlspecialchars($event["available_slots"]); ?> / <?php echo htmlspecialchars($event["total_slots"]); ?></p>
+                    </div>
                     </div>
 
                     <!-- Event Actions -->
@@ -168,7 +176,8 @@ if ($selected_club_id) {
 </div>
 
 
-    <script>
+
+<script>
     document.addEventListener("DOMContentLoaded", () => {
     const statusTabs = document.querySelectorAll(".status-tabs span");
     const eventCards = document.querySelectorAll(".event-card");

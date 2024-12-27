@@ -86,7 +86,6 @@ if ($selected_club_id) {
             <div class="nav-right">
                 <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
                 <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
-                <span class="notification-bell">🔔</span>
                 <a href="profilepage.php" class="profile-icon">
                 <i class="fas fa-user-circle"></i> 
             </a>
@@ -124,6 +123,7 @@ if ($selected_club_id) {
         <li><a href="organizercrew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizercrew.php' ? 'active' : ''; ?>"><i class="fas fa-users"></i>Crew Listing</a></li>
         <li><a href="organizerreport.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerreport.php' ? 'active' : ''; ?>"><i class="fas fa-chart-line"></i>Reports</a></li>
         <li><a href="rate_crew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerfeedback.php' ? 'active' : ''; ?>"><i class="fas fa-star"></i>Feedback</a></li>
+        <li><a href="organizerclubmembership.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerclub membership.php' ? 'active' : ''; ?>"><i class="fas fa-user-plus"></i> Club Membership</a></li>
     </ul>
     <ul style="margin-top: 60px;">
         <li><a href="organizersettings.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizersettings.php' ? 'active' : ''; ?>"><i class="fas fa-cog"></i>Settings</a></li>

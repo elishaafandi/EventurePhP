@@ -2,7 +2,6 @@
 session_start();
 require 'config.php'; // Ensure this includes your database connection setup
 
-
 // Check if a club is selected and store it in the session
 if (isset($_GET['club_id'])) {
     $_SESSION['SELECTEDID'] = $_GET['club_id'];
@@ -14,7 +13,6 @@ if (isset($_GET['club_id'])) {
 $selected_club_id = isset($_SESSION['SELECTEDID']) ? $_SESSION['SELECTEDID'] : null;
 
 // Fetch events for the selected club
-
 $sql_events = "SELECT event_id, event_name FROM events WHERE club_id = ? AND event_role = 'participant'";
 $stmt_events = $conn->prepare($sql_events);
 $stmt_events->bind_param("i", $selected_club_id);
@@ -24,6 +22,7 @@ $result_events = $stmt_events->get_result();
 $events = [];
 while ($row = $result_events->fetch_assoc()) {
     $events[] = $row;
+
 }
 
 // Get the selected event ID
@@ -32,7 +31,7 @@ $event_id = isset($_GET['event_id']) ? $_GET['event_id'] : (isset($events[0]['ev
 // Fetch event details for the selected event
 $event = null;
 if ($event_id) {
-    $event_query = "SELECT * FROM events WHERE event_id = ? AND  event_role = 'participant'";
+    $event_query = "SELECT * FROM events WHERE event_id = ? AND event_role = 'participant'";
     $stmt_event = $conn->prepare($event_query);
     $stmt_event->bind_param("i", $event_id);
     $stmt_event->execute();
@@ -41,31 +40,53 @@ if ($event_id) {
     $event = $event_result->num_rows > 0 ? $event_result->fetch_assoc() : null;
 }
 
-// Fetch participants for the selected event
-$participant_query = "
+// Fetch participants with "Pending" status for the applications table
+$pending_participants_query = "
     SELECT ep.*, s.first_name, s.last_name, s.ic, s.phone, s.email, s.faculty_name, s.year_course 
     FROM event_participants ep
     JOIN students s ON ep.id = s.id
-    WHERE ep.event_id = ?
+    WHERE ep.event_id = ? AND ep.attendance_status = 'Pending'
 ";
-$stmt_participants = $conn->prepare($participant_query);
-$stmt_participants->bind_param("i", $event_id);
-$stmt_participants->execute();
-$participant_result = $stmt_participants->get_result();
+$stmt_pending_participants = $conn->prepare($pending_participants_query);
+$stmt_pending_participants->bind_param("i", $event_id);
+$stmt_pending_participants->execute();
+$pending_participants_result = $stmt_pending_participants->get_result();
 
-// Fetch participants with updated attendance status (excluding "Pending")
+// Fetch participants with updated attendance status (Present or Absent) for the marked attendance table
 $marked_participants_query = "
     SELECT ep.*, s.first_name, s.last_name, s.ic, s.phone, s.email, s.faculty_name, s.year_course 
     FROM event_participants ep
     JOIN students s ON ep.id = s.id
-    WHERE ep.event_id = ? 
-    AND ep.attendance_status IN ('Present', 'Absent')
+    WHERE ep.event_id = ? AND ep.attendance_status IN ('Present', 'Absent')
 ";
 $stmt_marked_participants = $conn->prepare($marked_participants_query);
 $stmt_marked_participants->bind_param("i", $event_id);
 $stmt_marked_participants->execute();
 $marked_participants_result = $stmt_marked_participants->get_result();
 
+// Get the filter value from GET parameters
+$attendance_filter = isset($_GET['attendance_filter']) ? $_GET['attendance_filter'] : 'all';
+
+// Modify the marked participants query to include filtering
+$marked_participants_query = "
+    SELECT ep.*, s.first_name, s.last_name, s.ic, s.phone, s.email, s.faculty_name, s.year_course 
+    FROM event_participants ep
+    JOIN students s ON ep.id = s.id
+    WHERE ep.event_id = ?";
+
+// Add filter condition based on selection
+if ($attendance_filter === 'present') {
+    $marked_participants_query .= " AND ep.attendance_status = 'Present'";
+} elseif ($attendance_filter === 'absent') {
+    $marked_participants_query .= " AND ep.attendance_status = 'Absent'";
+} else {
+    $marked_participants_query .= " AND ep.attendance_status IN ('Present', 'Absent')";
+}
+
+$stmt_marked_participants = $conn->prepare($marked_participants_query);
+$stmt_marked_participants->bind_param("i", $event_id);
+$stmt_marked_participants->execute();
+$marked_participants_result = $stmt_marked_participants->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -84,7 +105,6 @@ $marked_participants_result = $stmt_marked_participants->get_result();
             <div class="nav-right">
                 <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
                 <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
-                <span class="notification-bell">🔔</span>
                 <a href="profilepage.php" class="profile-icon"><i class="fas fa-user-circle"></i></a>
             </div>
         </div>
@@ -103,6 +123,7 @@ $marked_participants_result = $stmt_marked_participants->get_result();
         <li><a href="organizercrew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizercrew.php' ? 'active' : ''; ?>"><i class="fas fa-users"></i>Crew Listing</a></li>
         <li><a href="organizerreport.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerreport.php' ? 'active' : ''; ?>"><i class="fas fa-chart-line"></i>Reports</a></li>
         <li><a href="rate_crew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerfeedback.php' ? 'active' : ''; ?>"><i class="fas fa-star"></i>Feedback</a></li>
+        <li><a href="organizerclubmembership.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerclub membership.php' ? 'active' : ''; ?>"><i class="fas fa-user-plus"></i> Club Membership</a></li>
     </ul>
     <ul style="margin-top: 60px;">
         <li><a href="organizersettings.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizersettings.php' ? 'active' : ''; ?>"><i class="fas fa-cog"></i>Settings</a></li>
@@ -154,47 +175,47 @@ $marked_participants_result = $stmt_marked_participants->get_result();
         <?php endif; ?>
 
 
-          <!-- Participant Table with Checkboxes -->
-<h3>Participant Applications</h3>
-<form method="POST" action="update_attendance.php">
-    <table class="participant-table">
-        <thead>
-            <tr>
-                <th>Select</th>
-                <th>Name</th>
-                <th>IC Number</th>
-                <th>Mobile Number</th>
-                <th>Email</th>
-                <th>Faculty</th>
-                <th>Year</th>
-                <th>Attendance Status</th>
-                <th>Special Requirements</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if ($participant_result && $participant_result->num_rows > 0): ?>
-                <?php while ($participant = $participant_result->fetch_assoc()): ?>
+         <!-- Participant Applications Table -->
+        <h3>Participant Applications</h3>
+        <form method="POST" action="update_attendance.php">
+            <table class="participant-table">
+                <thead>
                     <tr>
-                        <td>
-                            <input type="checkbox" name="participant_ids[]" value="<?php echo htmlspecialchars($participant['participant_id']); ?>">
-                        </td>
-                        <td><?php echo htmlspecialchars($participant['first_name'] . ' ' . $participant['last_name']); ?></td>
-                        <td><?php echo htmlspecialchars($participant['ic']); ?></td>
-                        <td><?php echo htmlspecialchars($participant['phone']); ?></td>
-                        <td><?php echo htmlspecialchars($participant['email']); ?></td>
-                        <td><?php echo htmlspecialchars($participant['faculty_name']); ?></td>
-                        <td><?php echo htmlspecialchars($participant['year_course']); ?></td>
-                        <td><?php echo htmlspecialchars($participant['attendance_status']); ?></td>
-                        <td><?php echo htmlspecialchars($participant['requirements']); ?></td>
+                        <th>Select</th>
+                        <th>Name</th>
+                        <th>IC Number</th>
+                        <th>Mobile Number</th>
+                        <th>Email</th>
+                        <th>Faculty</th>
+                        <th>Year</th>
+                        <th>Attendance Status</th>
+                        <th>Special Requirements</th>
                     </tr>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="9">No participants found.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    <?php if ($pending_participants_result && $pending_participants_result->num_rows > 0): ?>
+                        <?php while ($participant = $pending_participants_result->fetch_assoc()): ?>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="participant_ids[]" value="<?php echo htmlspecialchars($participant['participant_id']); ?>">
+                                </td>
+                                <td><?php echo htmlspecialchars($participant['first_name'] . ' ' . $participant['last_name']); ?></td>
+                                <td><?php echo htmlspecialchars($participant['ic']); ?></td>
+                                <td><?php echo htmlspecialchars($participant['phone']); ?></td>
+                                <td><?php echo htmlspecialchars($participant['email']); ?></td>
+                                <td><?php echo htmlspecialchars($participant['faculty_name']); ?></td>
+                                <td><?php echo htmlspecialchars($participant['year_course']); ?></td>
+                                <td><?php echo htmlspecialchars($participant['attendance_status']); ?></td>
+                                <td><?php echo htmlspecialchars($participant['requirements']); ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="8">No pending participants found.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
 
     <!-- Attendance Status Update Controls -->
     <div class="action-container">
@@ -212,6 +233,18 @@ $marked_participants_result = $stmt_marked_participants->get_result();
 </script>
 
 <h3>Marked Attendance Participants</h3>
+
+<div class="filter-container" style="margin: 20px 0;">
+    <form method="GET" class="filter-form">
+        <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($event_id); ?>">
+        <label for="attendance_filter">Filter by Attendance:</label>
+        <select name="attendance_filter" id="attendance_filter" onchange="this.form.submit()">
+            <option value="all" <?php echo $attendance_filter === 'all' ? 'selected' : ''; ?>>All</option>
+            <option value="present" <?php echo $attendance_filter === 'present' ? 'selected' : ''; ?>>Present</option>
+            <option value="absent" <?php echo $attendance_filter === 'absent' ? 'selected' : ''; ?>>Absent</option>
+        </select>
+    </form>
+</div>
 <table class="participant-table">
     <thead>
         <tr>
@@ -243,17 +276,17 @@ $marked_participants_result = $stmt_marked_participants->get_result();
                             <?php echo htmlspecialchars($participant['attendance_status']); ?>
                         </span>
                     </td>
-
                     <td><?php echo htmlspecialchars($participant['requirements']); ?></td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
             <tr>
-                <td colspan="8">No marked participants found.</td>
+                <td colspan="8">No participants found for the selected filter.</td>
             </tr>
         <?php endif; ?>
     </tbody>
 </table>
+
 
         </div>
     </main>

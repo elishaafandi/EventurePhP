@@ -1,0 +1,451 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #891a1a;
+    color: #f5f4e6;
+    padding: 50px 40px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+header h1 {
+    color: #f5f4e6;
+    margin-left: 220px;
+    padding-left: 30px;
+    margin-bottom: 10px;
+}
+
+/* Adjusted header height for sidebar positioning */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-right {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-right a {
+    margin-left: 10px;
+    text-decoration: none;
+    font-family: Arial;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 400;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-right a:hover{
+    color: #f3d64c;
+    text-decoration: underline;
+}
+
+.nav-right a.active {
+    color: #f3d64c; 
+    text-decoration: underline; 
+}
+
+.participant-site {
+    background-color: #f5f4e6;
+    color: #cb0000;
+    border: 1px solid #000;
+}
+
+.organizer-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+    border: 1px solid #000;
+}
+
+.participant-site:hover,
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #f5f4e6;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background-color: #9b252b;
+    color: #f5f4e6;
+    padding-top: 80px; /* Adjusted for fixed header offset */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 5;
+}
+
+/* Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+
+/* Sidebar Menu Items */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%; /* Full width for easier alignment */
+}
+
+.sidebar ul li {
+    width: 100%;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #f5f4e6;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: #ff4d11;
+}
+
+/* Additional spacing for sections if needed */
+.sidebar ul + ul {
+    margin-top: 60px;
+}
+
+
+/* Main Content Improvements */
+.main-content {
+    padding: 32px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px);
+}
+
+/* Event Selection Styling */
+.main-content select {
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    transition: all 0.3s ease;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.main-content select:hover,
+.main-content select:focus {
+    border-color: #891a1a;
+    box-shadow: 0 4px 8px rgba(137, 26, 26, 0.1);
+}
+
+/* Event Info Card Enhancement */
+.event-info {
+    background: linear-gradient(145deg, #891a1a, #9b252b);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 24px 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.event-info:hover {
+    transform: translateY(-2px);
+}
+
+.event-info h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #f3d64c;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.event-info p {
+    color: #ffffff;
+    margin: 12px 0;
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+
+.event-info p:before {
+    content: '•';
+    color: #fcf6f6;
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+/* Section Headers */
+.crew-header,
+.accepted-crew-header,
+.summary-header {
+    color: #333;
+    font-size: 24px;
+    margin: 40px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #891a1a;
+    position: relative;
+}
+
+.crew-header::after,
+.accepted-crew-header::after,
+.summary-header::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background-color: #f3d64c;
+}
+
+/* Filter Dropdown Enhancement */
+#crew-filter {
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    margin-bottom: 24px;
+    background-color: white;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+#crew-filter:hover,
+#crew-filter:focus {
+    border-color: #891a1a;
+    box-shadow: 0 4px 8px rgba(137, 26, 26, 0.1);
+}
+
+/* Table Improvements */
+.crew-table,
+.accepted-crew,
+.summary-table {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin: 24px 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.crew-table th,
+.accepted-crew th,
+.summary-table th {
+    background: linear-gradient(145deg, #891a1a, #9b252b);
+    color: white;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.crew-table td,
+.accepted-crew td,
+.summary-table td {
+    padding: 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.crew-table tr:hover td,
+.accepted-crew tr:hover td,
+.summary-table tr:hover td {
+    background-color: #f8f9fa;
+}
+
+/* Button Improvements */
+.action-buttons,
+.accepted-crew-action-container {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+    justify-content: flex-end;
+}
+
+.accept-btn,
+.reject-btn,
+.interview-btn,
+.view-interview-btn,
+.present-btn,
+.absent-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.accept-btn,
+.present-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.reject-btn,
+.absent-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.interview-btn {
+    background-color: #f1c40f;
+    color: #2c3e50;
+}
+
+.view-interview-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.accept-btn:hover,
+.present-btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.reject-btn:hover,
+.absent-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.interview-btn:hover {
+    background-color: #f39c12;
+    transform: translateY(-2px);
+}
+
+.view-interview-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* View Button and Interview Details Button */
+.view-button,
+.interview-details-button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin: 4px;
+}
+
+.view-button {
+    background-color: #891a1a;
+    color: white;
+}
+
+.interview-details-button {
+    background-color: #f1c40f;
+    color: #2c3e50;
+}
+
+.view-button:hover,
+.interview-details-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Student Photo Styling */
+.crew-table img,
+.accepted-crew img,
+.summary-table img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #891a1a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.crew-table img:hover,
+.accepted-crew img:hover,
+.summary-table img:hover {
+    transform: scale(1.1);
+}
+
+/* Checkbox Styling */
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    border: 2px solid #891a1a;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #891a1a;
+    border-color: #891a1a;
+}
+
+/* Attendance Status Colors */
+.summary-table td span.present {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.summary-table td span.absent {
+    color: #dc3545;
+    font-weight: 600;
+}
