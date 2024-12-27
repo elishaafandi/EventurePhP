@@ -86,6 +86,7 @@ if ($selected_club_id) {
             <div class="nav-right">
                 <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
                 <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
+                <span class="notification-bell">🔔</span>
                 <a href="profilepage.php" class="profile-icon">
                 <i class="fas fa-user-circle"></i> 
             </a>
@@ -117,28 +118,42 @@ if ($selected_club_id) {
         <a href="organizerhome.php" class="logo">EVENTURE</a>
     </div>
     <ul>
-        <li><a href="organizerhome.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerhome.php' ? 'active' : ''; ?>"><i class="fas fa-home-alt"></i> Dashboard</a></li>
+        <li><a href="organizerhome.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerhome.php' ? 'active' : 'active'; ?>"><i class="fas fa-home-alt"></i> Dashboard</a></li>
         <li><a href="organizerevent.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerevent.php' ? 'active' : ''; ?>"><i class="fas fa-calendar-alt"></i>Event Hosted</a></li>
-        <li><a href="organizerparticipant.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerparticipant.php' ? 'active' : ''; ?>"><i class="fas fa-user-friends"></i>Participant Listing</a></li>
+        <li><a href="organizerparticipant.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerparticipant.php' ? '' : ''; ?>"><i class="fas fa-user-friends"></i>Participant Listing</a></li>
         <li><a href="organizercrew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizercrew.php' ? 'active' : ''; ?>"><i class="fas fa-users"></i>Crew Listing</a></li>
         <li><a href="organizerreport.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerreport.php' ? 'active' : ''; ?>"><i class="fas fa-chart-line"></i>Reports</a></li>
-        <li><a href="rate_crew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerfeedback.php' ? 'active' : ''; ?>"><i class="fas fa-star"></i>Feedback</a></li>
         <li><a href="organizerclubmembership.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerclub membership.php' ? 'active' : ''; ?>"><i class="fas fa-user-plus"></i> Club Membership</a></li>
+        <li><a href="rate_crew.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerfeedback.php' ? 'active' : ''; ?>"><i class="fas fa-star"></i>Feedback</a></li>
+        <li><a href="organizermerchandise.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizermerchandise.php' ? 'active' : ''; ?>"><i class="fas fa-tshirt"></i>Merchandise</a></li>
     </ul>
     <ul style="margin-top: 60px;">
-        <li><a href="organizersettings.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizersettings.php' ? 'active' : ''; ?>"><i class="fas fa-cog"></i>Settings</a></li>
+        <li><a href="organizerrevenue.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'organizerrevenue.php' ? 'active' : ''; ?>"><i class="fas fa-hand-holding-usd"></i>Revenue</a></li>
         <li><a href="logout.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'logout.php' ? 'active' : ''; ?>"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
 </aside>
 
     <section class="main-content">
 
-        <div class="create-event-section">
-            <h2>Create New Program & Event</h2>
-            <p>Elevate your membership status and indulge in rewards of luxury and exclusivity.</p>
-            <a href="organizercreateeventcrew.php"><div class="pill">For Crew</div></a>
-            <a href="organizercreateeventpart.php"><div class="pill">For Participant</div></a>
+    <div class="create-event-section">
+    <h2>Create New Program & Event</h2>
+    <p>Elevate your membership status and indulge in rewards of luxury and exclusivity.</p>
+    <a href="organizercreateeventcrew.php"><div class="pill">For Crew</div></a>
+    <div class="pill" onclick="openEventPopup()">For Participant</div>
+</div>
+
+<!-- Popup Box -->
+<div id="eventPopup" class="popup-overlay" style="display: none;">
+    <div class="popup-content">
+        <h3>Is this a Paid Event?</h3>
+        <p>Select the type of event to proceed:</p>
+        <div class="popup-buttons">
+            <a href="organizercreateeventpaidpart.php" class="popup-button paid">Paid Event</a>
+            <a href="organizercreateeventpart.php" class="popup-button free">Free Event</a>
         </div>
+        <button onclick="closeEventPopup()" class="close-popup">Close</button>
+    </div>
+</div>
 
         <div class="event-status">
             <h3>Event Status</h3>
@@ -176,4 +191,13 @@ if ($selected_club_id) {
     </section>
     </main>
 </body>
+<script>
+function openEventPopup() {
+    document.getElementById('eventPopup').style.display = 'flex';
+}
+
+function closeEventPopup() {
+    document.getElementById('eventPopup').style.display = 'none';
+}
+</script>
 </html>
