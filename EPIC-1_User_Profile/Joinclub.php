@@ -29,13 +29,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt_check_membership->bind_param("ii", $user_id, $row['club_id']);
     $stmt_check_membership->execute();
     $result_check_membership = $stmt_check_membership->get_result();
-    
+
     // Determine if the button should be disabled
     $disable_button = $result_check_membership->num_rows > 0;
 
     // If the user has already requested to join or is a member, disable the button
     if ($result_check->num_rows > 0) {
-         $disable_button = true;
+        $disable_button = true;
         // echo "You have already requested to join or are already a member of this club.";
     } else {
         // Insert the membership request into the database if it's not a duplicate request
@@ -71,8 +71,7 @@ $sql = "SELECT club_id, club_name, club_photo, description, founded_date, club_t
 $result = $conn->query($sql);
 
 // Query to fetch events related to the clubs
-$sql = "SELECT event_id, event_name, description, event_photo FROM events";
-$resultevent = $conn->query($sql);
+
 
 // Close the database connection
 ?>
@@ -259,22 +258,35 @@ $resultevent = $conn->query($sql);
                                 <p><strong>Founded:</strong> <?php echo htmlspecialchars($row['founded_date']); ?></p>
                                 <div class="text-center my-3">
                                     <?php if ($row["club_photo"]): ?>
-                                        <img src="data:image/jpeg;base64,<?php echo base64_encode($row["club_photo"]); ?>" class="club-photo" alt="Club Photo" height=150px; width=auto;>
+                                        <img src="data:image/jpeg;base64,<?php echo base64_encode($row["club_photo"]); ?>" class="club-photo" alt="Club Photo" height=170px; width=200px;>
                                     <?php else: ?>
                                         <p class="text-muted">No Photo Available</p>
                                     <?php endif; ?>
                                 </div>
 
                                 <!-- Modal Trigger Button -->
-                                <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#clubModal<?php echo $row['club_id']; ?>">View Details</button>
+
+                                <?php
+                                // Assuming you have a database connection in $conn
+                                // and $row contains club data with 'club_id
+                                $sql = "SELECT club_id, event_id, event_name, description, event_photo FROM events WHERE club_id = ?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $row['club_id']); // Assuming club_id is an integer
+                                $stmt->execute();
+                                $resultevent = $stmt->get_result();
+                                ?>
+                                <!-- Button to trigger modal -->
+                                <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#clubModal<?php echo $row['club_id']; ?>">
+                                    View Details
+                                </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Modal for Club Details -->
                     <div class="modal fade" id="clubModal<?php echo $row['club_id']; ?>" tabindex="-1" role="dialog" aria-labelledby="clubModalLabel<?php echo $row['club_id']; ?>" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content" style="">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="clubModalLabel<?php echo $row['club_id']; ?>" style="font-weight: 900;"><?php echo htmlspecialchars($row['club_name']); ?> - Details</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -287,7 +299,7 @@ $resultevent = $conn->query($sql);
                                     <p><strong>Founded:</strong> <?php echo htmlspecialchars($row['founded_date']); ?></p>
                                     <div class="text-center my-3">
                                         <?php if ($row["club_photo"]): ?>
-                                            <img src="data:image/jpeg;base64,<?php echo base64_encode($row["club_photo"]); ?>" class="club-photo" alt="Club Photo">
+                                            <img src="data:image/jpeg;base64,<?php echo base64_encode($row["club_photo"]); ?>" class="club-photo" alt="Club Photo" height=170px; width=200px;>
                                         <?php else: ?>
                                             <p class="text-muted">No Photo Available</p>
                                         <?php endif; ?>
@@ -309,7 +321,7 @@ $resultevent = $conn->query($sql);
                                                     <tr>
                                                         <td>
                                                             <?php if ($event["event_photo"]): ?>
-                                                                <img src="data:image/jpeg;base64,<?php echo base64_encode($event["event_photo"]); ?>" class="club-photo" alt="Event Photo" height="50px">
+                                                                <img src="data:image/jpeg;base64,<?php echo base64_encode($event["event_photo"]); ?>" class="club-photo" alt="Event Photo" height="100px">
                                                             <?php else: ?>
                                                                 <p class="text-muted">No Photo</p>
                                                             <?php endif; ?>
@@ -329,13 +341,26 @@ $resultevent = $conn->query($sql);
                                     <form action="Joinclub.php" method="POST">
                                         <input type="hidden" name="club_id" value="<?php echo $row['club_id']; ?>">
                                         <div class="form-group" style="display: flex; justify-content: center; align-items: center;">
+                                            <?php
+                                            // Check if the user is already a member or has a pending/approved membership
+                                            $sql_check_membership = "SELECT * FROM club_memberships WHERE user_id = ? AND club_id = ? AND (status = 'Pending' OR status = 'Approved')";
+                                            $stmt_check_membership = $conn->prepare($sql_check_membership);
+                                            $stmt_check_membership->bind_param("ii", $user_id, $row['club_id']);
+                                            $stmt_check_membership->execute();
+                                            $result_check_membership = $stmt_check_membership->get_result();
+
+                                            // Set the disable_button variable based on the membership status
+                                            $disable_button = ($result_check_membership->num_rows > 0) ? true : false;
+                                            ?>
+
                                             <button
                                                 type="submit"
                                                 class="btn btn-success join-button"
                                                 <?php echo $disable_button ? 'disabled data-disable="true"' : ''; ?>
                                                 onclick="handleJoinButtonClick(this, event)">
-                                                <?php echo $disable_button ? 'Already a Member' : 'Join Club'; ?>
+                                                <?php echo $disable_button ? 'Already a Member or Your Status is Still Pending' : 'Join Club'; ?>
                                             </button>
+
                                         </div>
                                     </form>
 
