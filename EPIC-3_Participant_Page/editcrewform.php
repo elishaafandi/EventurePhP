@@ -34,6 +34,24 @@ $crewStmt->execute();
 $crewResult = $crewStmt->get_result();
 $crew = $crewResult->fetch_assoc();
 
+// Query to fetch the crew_role for the specific event
+$query = "SELECT crew_role FROM events WHERE event_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $event_id); // Bind the event_id
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch the crew_role value (comma-separated roles)
+$row = $result->fetch_assoc();
+$crew_roles = $row['crew_role'];  // This contains the comma-separated roles
+$stmt->close();
+
+// Split the roles into an array based on commas
+$rolesArray = explode(",", $crew_roles);
+
+// Capture the previously selected role (if any) from the form submission or database
+$selectedRole = isset($_POST['role']) ? $_POST['role'] : ''; // Use POST value if submitted
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $past_experience = $_POST['past_experience'];
@@ -58,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Crew Recruitment Form</title>
+    <title>Crew Recruitment Form</title>
     <link rel="stylesheet" href="crewform.css">
 </head>
 <body>
@@ -70,12 +88,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="participantdashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantdashboard.php' ? 'active' : ''; ?>"></i>Dashboard</a>
                 <a href="participantcalendar.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantcalendar.php' ? 'active' : ''; ?>"></i>Calendar</a>
                 <a href="profilepage.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'profilepage.php' ? 'active' : ''; ?>"></i>User Profile</a>
+                <a href="participantmerchandise.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantmerchandise.php' ? 'active' : ''; ?>"></i>Merchandise</a>
             </nav>
         </div>
         <div class="nav-right">
             <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
             <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
-            <span class="notification-bell">🔔</span>
             <div class="profile-menu">
                 <!-- Ensure the profile image is fetched and rendered properly -->
                 <?php if (!empty($student['student_photo'])): ?>
@@ -176,16 +194,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="role">Choose your desired role</label>
                 <select id="role" name="role" required>
                     <option value="">Select a role</option>
-                    <option value="Protocol" <?php echo ($crew['role'] == 'Protocol') ? 'selected' : ''; ?>>Protocol</option>
-                    <option value="Technical" <?php echo ($crew['role'] == 'Technical') ? 'selected' : ''; ?>>Technical</option>
-                    <option value="Gift" <?php echo ($crew['role'] == 'Gift') ? 'selected' : ''; ?>>Gift</option>
-                    <option value="Food" <?php echo ($crew['role'] == 'Food') ? 'selected' : ''; ?>>Food</option>
-                    <option value="Special Task" <?php echo ($crew['role'] == 'Special Task') ? 'selected' : ''; ?>>Special Task</option>
-                    <option value="Multimedia" <?php echo ($crew['role'] == 'Multimedia') ? 'selected' : ''; ?>>Multimedia</option>
-                    <option value="Sponsorship" <?php echo ($crew['role'] == 'Sponsorship') ? 'selected' : ''; ?>>Sponsorship</option>
-                    <option value="Documentation" <?php echo ($crew['role'] == 'Documentation') ? 'selected' : ''; ?>>Documentation</option>
-                    <option value="Transportation" <?php echo ($crew['role'] == 'Transportation') ? 'selected' : ''; ?>>Transportation</option>
-                    <option value="Activity" <?php echo ($crew['role'] == 'Activity') ? 'selected' : ''; ?>>Activity</option>
+                    <?php
+                    // Loop through the roles and display them as options
+                    foreach ($rolesArray as $role) {
+                        // Trim whitespace that may appear in the roles
+                        $role = trim($role);
+
+                        // Check if this role is the selected one (either from $_POST or database)
+                        $selected = ($selectedRole == $role) ? 'selected' : '';
+                        echo "<option value=\"" . htmlspecialchars($role) . "\" $selected>" . htmlspecialchars($role) . "</option>";
+                    }
+                    ?>
                 </select>
             </div>
 

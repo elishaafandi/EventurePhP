@@ -33,6 +33,12 @@ $student = $studentResult->fetch_assoc();
 
 $studentStmt->close();
 $eventStmt->close();
+
+$sql = "SELECT * FROM payment WHERE event_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $event_id);
+$stmt->execute();
+$payment = $stmt->get_result()->fetch_assoc();
 ?>
 
 
@@ -41,24 +47,24 @@ $eventStmt->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Participant Application Details</title>
+    <title>Participant Form</title>
     <link rel="stylesheet" href="viewapplicationdetails.css">
 </head>
 <body>
     <header>
         <div class="header-left">
-            <a href="participanthome.php" class="logo">EVENTURE</a> 
+        <a href="participanthome.php" class="logo">EVENTURE</a> 
             <nav class="nav-left">
-                <a href="participanthome.php" class="active">Home</a>
-                <a href="#">Calendar</a>
-                <a href="#">User Profile</a>
-                <a href="#">Dashboard</a>
+                <a href="participanthome.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participanthome.php' ? 'active' : ''; ?>"></i>Home</a>
+                <a href="participantdashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantdashboard.php' ? 'active' : ''; ?>"></i>Dashboard</a>
+                <a href="participantcalendar.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantcalendar.php' ? 'active' : ''; ?>"></i>Calendar</a>
+                <a href="profilepage.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'profilepage.php' ? 'active' : ''; ?>"></i>User Profile</a>
+                <a href="participantmerchandise.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantmerchandise.php' ? 'active' : ''; ?>"></i>Merchandise</a>
             </nav>
         </div>
         <div class="nav-right">
             <a href="#" class="participant-site">PARTICIPANT SITE</a>
             <a href="#" class="organizer-site">ORGANIZER SITE</a>
-            <span class="notification-bell">🔔</span>
             <div class="profile-menu">
                 <!-- Ensure the profile image is fetched and rendered properly -->
                 <?php if (!empty($student['student_photo'])): ?>
@@ -101,7 +107,40 @@ $eventStmt->close();
             <p><strong>Location:</strong> <?php echo htmlspecialchars($event['location']); ?></p>
             <p><strong>Description:</strong> <?php echo htmlspecialchars($event['description']); ?></p>
         </section>
-        
+
+        <section>
+            <h2>Event Fee Payment Details</h2>
+            <?php if ($payment): ?>
+                <p><strong>Payment Amount:</strong> <?php echo htmlspecialchars($payment['payment_fee']); ?></p>
+                <p><strong>Payment Method:</strong> <?php echo htmlspecialchars($payment['payment_method']); ?></p>
+                <p><strong>Proof Of Payment:</strong>  </p>
+
+                <?php if (!empty($payment['proof_of_payment'])): ?>
+                    <p><strong>Download Proof:</strong></p>
+                    <a href="data:application/pdf;base64,<?php echo base64_encode($payment['proof_of_payment']); ?>" download="proof_of_payment.pdf">Download Proof of Payment</a>
+                    <p><strong>View Proof:</strong></p>
+                    <embed src="data:application/pdf;base64,<?php echo base64_encode($payment['proof_of_payment']); ?>" width="600" height="400" type="application/pdf">
+                <?php else: ?>
+                    <p>No proof of payment available</p>
+                <?php endif; ?>
+
+                <?php if ($payment['payment_method'] === "account number"): ?>
+                    <p><strong>Account Number:</strong> <?php echo htmlspecialchars($payment['account_number']); ?></p>
+                    <p><strong>Account Holder:</strong> <?php echo htmlspecialchars($payment['account_holder']); ?></p>
+                    <p><strong>Bank Name:</strong> <?php echo htmlspecialchars($payment['bank_name']); ?></p>
+                <?php elseif ($payment['payment_method'] === "qr code"): ?>
+                    <p><strong>QR Code:</strong></p>
+                    <?php if (!empty($payment['qr_code'])): ?>
+                        <img class="qr-code-image" src="data:image/jpeg;base64,<?php echo base64_encode($payment['qr_code']); ?>" alt="QR CODE" width="250" height="250">
+                    <?php else: ?>
+                        <p>No QR code available</p>
+                    <?php endif; ?>
+                <?php endif; ?>
+            <?php else: ?>
+                <p>No payment information available for this event.</p>
+            <?php endif; ?>
+        </section>
+
         <button onclick="window.location.href='participantdashboard.php';">Back</button>
     </main>
 

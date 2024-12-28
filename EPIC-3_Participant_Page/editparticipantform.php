@@ -11,14 +11,6 @@ $user_id = $_SESSION['ID'];
 
 $event_id = isset($_GET['event_id']) ? $_GET['event_id'] : ''; // Get event_id from URL
 
-$eventQuery = "SELECT * FROM events WHERE event_id = ?";
-$eventStmt = $conn->prepare($eventQuery);
-$eventStmt->bind_param("i", $event_id);
-$eventStmt->execute();
-$eventResult = $eventStmt->get_result();
-$event = $eventResult->fetch_assoc();
-$eventStmt->close();
-
 // Fetch student details
 $studentQuery = "SELECT * FROM students WHERE id = ?";
 $studentStmt = $conn->prepare($studentQuery);
@@ -26,6 +18,20 @@ $studentStmt->bind_param("i", $user_id);
 $studentStmt->execute();
 $studentResult = $studentStmt->get_result();
 $student = $studentResult->fetch_assoc();
+
+$eventQuery = "SELECT * FROM events WHERE event_id = ?";
+$eventStmt = $conn->prepare($eventQuery);
+$eventStmt->bind_param("i", $event_id);
+$eventStmt->execute();
+$eventResult = $eventStmt->get_result();
+$event = $eventResult->fetch_assoc();
+
+$paymentQuery = "SELECT * FROM payment WHERE event_id = ?";
+$paymentStmt = $conn->prepare($paymentQuery);
+$paymentStmt->bind_param("i", $event_id);
+$paymentStmt->execute();
+$paymentResult = $paymentStmt->get_result();
+$payment = $paymentResult->fetch_assoc();
 
 // Fetch existing registration details for autofill
 $registrationQuery = "SELECT * FROM event_participants WHERE id = ? AND event_id = ?";
@@ -59,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Participant Form</title>
+    <title>Participant Recruitment Form</title>
     <link rel="stylesheet" href="participantform.css">
 </head>
 <body>
@@ -71,12 +77,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="participantdashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantdashboard.php' ? 'active' : ''; ?>"></i>Dashboard</a>
                 <a href="participantcalendar.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantcalendar.php' ? 'active' : ''; ?>"></i>Calendar</a>
                 <a href="profilepage.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'profilepage.php' ? 'active' : ''; ?>"></i>User Profile</a>
+                <a href="participantmerchandise.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'participantmerchandise.php' ? 'active' : ''; ?>"></i>Merchandise</a>
             </nav>
         </div>
         <div class="nav-right">
             <a href="participanthome.php" class="participant-site">PARTICIPANT SITE</a>
             <a href="organizerhome.php" class="organizer-site">ORGANIZER SITE</a> 
-            <span class="notification-bell">🔔</span>
             <div class="profile-menu">
                 <!-- Ensure the profile image is fetched and rendered properly -->
                 <?php if (!empty($student['student_photo'])): ?>
@@ -184,6 +190,72 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </select>
                 </div>
             </fieldset>
+
+            <fieldset>
+                <legend>Payment Details</legend>
+                <?php if ($payment): ?>
+                    <div class="form-group">
+                        <label for="payment_fee">Payment Amount</label>
+                        <input type="text" value="<?php echo htmlspecialchars($payment['payment_fee']); ?>" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method</label>
+                        <input type="text" value="<?php echo htmlspecialchars($payment['payment_method']); ?>" readonly>
+                    </div>
+
+                    <?php if ($payment['payment_method'] === "account number"): ?>
+                        <div class="form-group">
+                            <label for="account_number">Account Number</label>
+                            <input type="text" value="<?php echo htmlspecialchars($payment['account_number']); ?>" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="account_holder">Account Holder</label>
+                            <input type="text" value="<?php echo htmlspecialchars($payment['account_holder']); ?>" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="bank_name">Bank Name</label>
+                            <input type="text" value="<?php echo htmlspecialchars($payment['bank_name']); ?>" readonly>
+                        </div>
+                    <?php elseif ($payment['payment_method'] === "qr code"): ?>
+                        <div class="form-group">
+                            <label for="qr_code">QR Code</label>
+                            <?php if (!empty($payment['qr_code'])): ?>
+                                <img class="qr-code-image" src="data:image/jpeg;base64,<?php echo base64_encode($payment['qr_code']); ?>" alt="QR Code" width="300" height="300">
+                            <?php else: ?>
+                                <p>No QR Code available.</p>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <p>No payment information available for this event.</p>
+                    <?php endif; ?>
+
+                    <!-- Display Previously Uploaded Proof of Payment -->
+                    <div class="form-group">
+                        <label for="proof_of_payment">Proof of Payment:</label>
+                        <?php if (!empty($payment['proof_of_payment'])): ?>
+                            <?php
+                            // Determine the file type of the LONGBLOB for inline display (e.g., image or PDF)
+                            $fileType = finfo_buffer(finfo_open(), $payment['proof_of_payment'], FILEINFO_MIME_TYPE);
+
+                            // Display as an inline image or link to download
+                            if (strpos($fileType, 'image') !== false): ?>
+                                <img src="data:<?php echo $fileType; ?>;base64,<?php echo base64_encode($payment['proof_of_payment']); ?>" alt="Proof of Payment" width="500">
+                            <?php elseif (strpos($fileType, 'pdf') !== false): ?>
+                                <embed src="data:application/pdf;base64,<?php echo base64_encode($payment['proof_of_payment']); ?>" width="600" height="400" type="application/pdf">
+                                <p><a href="data:application/pdf;base64,<?php echo base64_encode($payment['proof_of_payment']); ?>" download="proof_of_payment.pdf">Download Proof of Payment</a></p>
+                            <?php else: ?>
+                                <p>Unsupported file type. Please download the proof of payment:</p>
+                                <a href="data:<?php echo $fileType; ?>;base64,<?php echo base64_encode($payment['proof_of_payment']); ?>" download="proof_of_payment">Download Proof of Payment</a>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <p>No proof of payment uploaded yet.</p>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <p>No payment information available for this event.</p>
+                <?php endif; ?>
+            </fieldset>
+
 
             <div class="button-group">
                 <button type="submit" class="submit-button">Submit</button>
