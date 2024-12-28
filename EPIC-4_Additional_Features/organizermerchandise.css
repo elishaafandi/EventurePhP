@@ -1,0 +1,431 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #891a1a;
+    color: #f5f4e6;
+    padding: 50px 40px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+header h1 {
+    color: #f5f4e6;
+    margin-left: 220px;
+    padding-left: 30px;
+    margin-bottom: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-right {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-right a {
+    margin-left: 10px;
+    text-decoration: none;
+    font-family: Arial;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 400;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-right a:hover{
+    color: #f3d64c;
+    text-decoration: underline;
+}
+
+.nav-right a.active {
+    color: #f3d64c; 
+    text-decoration: underline; 
+}
+
+.participant-site {
+    background-color: #f5f4e6;
+    color: #cb0000;
+    border: 1px solid #000;
+}
+
+.organizer-site {
+    background-color: #da6124;
+    color: #f5f4e6;
+    border: 1px solid #000;
+}
+
+.participant-site:hover,
+.organizer-site:hover {
+    background-color: #da6124;
+    color: #f5f4e6;
+}
+
+.notification-bell {
+    font-size: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #f5f4e6;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background-color: #9b252b;
+    color: #f5f4e6;
+    padding-top: 80px; /* Adjusted for fixed header offset */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 5;
+}
+
+/* Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    color: #f5f4e6;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+/* Sidebar Menu Items */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%; /* Full width for easier alignment */
+}
+
+.sidebar ul li {
+    width: 100%;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #f5f4e6;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: #ff4d11;
+}
+
+/* Additional spacing for sections if needed */
+.sidebar ul + ul {
+    margin-top: 60px;
+}
+
+
+/* Main Content Styling */
+.main-content {
+    margin-left: 220px; 
+    margin-top: 10px; 
+    padding: 20px;
+    width: calc(100% - 220px);
+}
+
+.main-content h3 {
+    margin-top: 20px;  /* Add space above the header */
+    margin-bottom: 20px; /* Add space below the header */
+}
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.participant-site-btn, .organizer-site-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.section-title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #891a1a;
+}
+
+
+.view-btn:hover {
+    background-color: #6d1515;
+}
+.merchandise-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+
+/* Main Content Container */
+.main-content {
+    margin-left: 220px;
+    padding: 40px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 120px);
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.75rem;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #891a1a;
+    font-weight: 600;
+}
+
+/* Merchandise Form */
+.merchandise-form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #891a1a;
+    box-shadow: 0 0 0 3px rgba(137, 26, 26, 0.1);
+}
+
+.form-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.submit-btn {
+    background-color: #891a1a;
+    color: white;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 100%;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #6d1515;
+    transform: translateY(-1px);
+}
+
+/* Purchases Table */
+.purchases {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin: 30px 0;
+    overflow: hidden;
+}
+
+.purchase-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.purchase-table th {
+    background-color: #891a1a;
+    color: white;
+    padding: 16px;
+    font-weight: 600;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.purchase-table td {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    color: #2c3e50;
+}
+
+.purchase-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.view-btn {
+    padding: 8px 16px;
+    background-color: #891a1a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.3s, transform 0.2s;
+    display: inline-block;
+}
+
+.view-btn:hover {
+    background-color: #6d1515;
+    transform: translateY(-1px);
+}
+
+/* Merchandise Grid */
+.merchandise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    padding: 20px 0;
+}
+
+.merchandise-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.merchandise-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.merchandise-image {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
+
+.merchandise-details {
+    padding: 20px;
+}
+
+.merchandise-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #2c3e50;
+}
+
+.merchandise-description {
+    color: #616161;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.merchandise-type,
+.merchandise-size,
+.merchandise-pickup,
+.merchandise-promotion {
+    color: #616161;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.merchandise-price {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #891a1a;
+    margin: 16px 0;
+}
+
+.merchandise-stock {
+    color: #616161;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+/* Size Select Styling */
+.size-select-container select {
+    min-height: 120px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e1e1e1;
+}
+
+.size-select-container select option {
+    padding: 8px;
+    font-size: 0.95rem;
+}
+
+.size-select-container select:focus {
+    outline: none;
+    border-color: #891a1a;
+    box-shadow: 0 0 0 3px rgba(137, 26, 26, 0.1);
+}
